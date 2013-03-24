@@ -1,0 +1,9 @@
+SUBDIRS=operacje we_wy reszta
+
+bin_PROGRAMS=macierze
+
+macierze_CFLAGS=-Wall -I include
+
+macierze_SOURCES=main.c reszta/macierz.c
+
+macierze_LDADD=operacje/operacje.a we_wy/we_wy.a

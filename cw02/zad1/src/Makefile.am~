@@ -1,0 +1,6 @@
+SUBDIRS=internals
+
+lib_LTLIBRARIES=mymem.la
+libmem_la_CFLAGS=-Wall -I include
+libmem_la_SOURCES=mymem.c internals/memlist.c
+libmem_la_LDFLAGS= -module

@@ -1,0 +1,20 @@
+# Object files
+*.o
+
+# Libraries
+*.lib
+*.a
+
+# Shared
+*.dll
+*.so
+*.so.*
+*.dylib
+
+# Execs
+*.exe
+*.out
+*.app
+
+# Others
+*~

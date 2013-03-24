@@ -1,0 +1,48 @@
+# Use 'make DEBUG=ON' to activate logging
+
+#### Standard variables
+VPATH=src/:src/include:src/operacje:src/we_wy:src/reszta
+INCLUDE = -I src/include
+CFLAG = -Wall
+CC = gcc $(CFLAG) $(INCLUDE) $(LOGS)
+
+#### Name of the executable
+EXEC = macierze
+
+#### Enabling logging if and only if DEBUG argument of make is set to 'on'
+LOGS =
+	ifeq ($(DEBUG), ON)
+		LOGS = -D KOMUNIKATY
+	endif
+
+#### Defining source files
+# Sources to compile when using standard io
+CSRC = wczytaj_konsola.c wypisz_konsola.c
+# Sources to compile when using file io
+FSRC = wczytaj_plik.c wypisz_plik.c pliki.c
+# Rest of sources
+SRC = suma.c roznica.c iloczyn.c macierz.c
+
+#### Setting target object file names from source filenames
+COBJ = $(CSRC:.c=.o)
+FOBJ = $(FSRC:.c=.o)
+OBJ = $(SRC:.c=.o)
+
+console : $(COBJ) $(OBJ) main.o
+	$(CC) $^ -o $(EXEC)
+
+file : $(FOBJ) $(OBJ) main_fio.o
+	$(CC) $^ -o $(EXEC)
+
+#### When using file io we must compile main.c with WEWY_PLIKI flag set (to include pliki.h)
+main_fio.o : main.c
+	$(CC) -D WEWY_PLIKI -c $< -o $@
+
+%.o: %.c
+	$(CC) -c $< -o $@
+
+clean :
+	rm -rfv $(EXEC)
+	rm -rfv *.o
+
+.PHONY : clean console file

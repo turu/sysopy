@@ -1,0 +1,4 @@
+noinst_LIBRARIES=we_wy.a
+
+we_wy_a_SOURCES=pliki.c wczytaj_konsola.c wczytaj_plik.c wypisz_konsola.c wypisz_plik.c ../reszta/macierz.c
+we_wy_a_CFLAGS=-Wall -I ../include

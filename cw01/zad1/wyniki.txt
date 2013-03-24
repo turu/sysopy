@@ -1,0 +1,120 @@
+Ponizej znajduja sie zestawienia czasow dzialania, wielkosci plikow wykonywalnych i polecen kompilacji:
+
+Test flagi -Os: size_test.cpp;
+	g++ -Wall -o size_test_noopt size_test.cpp
+	time ./size_test_noopt < size_test_input
+	real	0m0.011s
+	user	0m0.004s
+	sys	0m0.005s
+	31558B size_test_noopt
+
+	g++ -Wall -march=native -o size_test_noopt size_test.cpp
+	time ./size_test_noopt < size_test_input
+	real	0m0.010s
+	user	0m0.001s
+	sys	0m0.008s
+	31574B size_test_noopt
+
+	g++ -Wall -Os -o size_test_Os size_test.cpp
+	time ./size_test_Os < size_test_input
+	real	0m0.010s
+	user	0m0.000s
+	sys	0m0.010s
+	14549B size_test_Os
+
+	g++ -Wall -Os -march=native -o size_test_Os size_test.cpp
+	time ./size_test_Os < size_test_input
+	real	0m0.010s
+	user	0m0.002s
+	sys	0m0.008s
+	14549B size_test_Os
+Komentarz: Użycie flagi -Os pozwoliło znacznie zmniejszyć wielkość pliku wykonywalnego (~50%). Kompilacja pod konkretną architekturę nie powoduje zmian.
+
+
+Test flagi -03: fib.c
+	gcc -Wall -o fib fib.c
+	time ./fib 45
+	real	0m11.641s
+	user	0m11.611s
+	sys	0m0.002s
+
+	gcc -Wall -march=native -o fib fib.c
+	time ./fib 45
+	real	0m11.719s
+	user	0m11.692s
+	sys	0m0.001s
+
+	gcc -Wall -O3 -o fib_O3 fib.c
+	time ./fib_O3 45
+	real	0m4.415s
+	user	0m4.398s
+	sys	0m0.001s
+
+	gcc -Wall -O3 -march=native -o fib_O3 fib.c
+	time ./fib_O3 45
+	real	0m4.387s
+	user	0m4.377s
+	sys	0m0.001s
+Komentarz: Użycie agresywnej optymalizacji flagą -O3 pozwoliło niemal trzykrotnie zmniejszyć czas wykonania nawet tak prostego programu. 
+Kompilacja pod konkretną architekturę nie powoduje zmian.
+
+
+Test flagi -ffast-math: fmath.c
+	gcc -Wall -lm -O1 -o fmath fmath.c
+	time ./fmath
+	real	0m7.118s
+	user	0m7.044s
+	sys	0m0.001s
+
+	gcc -Wall -march=native -lm -O1 -o fmath fmath.c
+	time ./fmath
+	real	0m6.893s
+	user	0m6.876s
+	sys	0m0.002s
+
+	gcc -Wall -lm -O1 -ffast-math -o fmath_fast fmath.c
+	time ./fmath_fast
+	real	0m0.043s
+	user	0m0.042s
+	sys	0m0.001s
+
+	gcc -Wall -march=native -lm -O1 -ffast-math -o fmath_fast fmath.c
+	time ./fmath_fast
+	real	0m0.041s
+	user	0m0.038s
+	sys	0m0.002s
+Komentarz: Użycie powyższej flagi w programie używającej dużej liczby operacji matematycznych powoduje fenomenalne przyspieszenie działania (kilkusetkrotne). 
+Kompilacja pod konkretną architekturę powoduje nieznaczne przyspieszenie.
+
+
+Test flagi -funroll-loops: unroll.c
+	gcc -Wall -O1 -o unroll unroll.c
+	time ./unroll
+	real	0m0.674s
+	user	0m0.670s
+	sys	0m0.002s
+
+	gcc -Wall -O1 -march=native -o unroll unroll.c
+	time ./unroll
+	real	0m0.675s
+	user	0m0.672s
+	sys	0m0.002s
+
+	gcc -Wall -O1 -funroll-loops -o unroll_opt unroll.c
+	time ./unroll_opt
+	real	0m0.174s
+	user	0m0.173s
+	sys	0m0.000s
+
+	gcc -Wall -O1 -march=native -funroll-loops -o unroll_opt unroll.c
+	time ./unroll_opt
+	real	0m0.181s
+	user	0m0.179s
+	sys	0m0.001s
+Komentarz: W przypadku gdy kompilator może obliczyć w czasie kompilacji ilość iteracji pętli, rozwinięcie jej potrafi znacząco przyśpieszyć (kosztem wielkości programu).
+Kompilacja pod konkretną architekturę nie powoduje żadnych zmian (a wręcz można zauważyć nieznaczy spadek wydajności).
+
+
+ 
+
+

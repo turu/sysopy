@@ -1,0 +1,114 @@
+[turu@turu zad2]$ gdb --args fib 6
+GNU gdb (GDB) Fedora (7.4.50.20120120-54.fc17)
+Copyright (C) 2012 Free Software Foundation, Inc.
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.  Type "show copying"
+and "show warranty" for details.
+This GDB was configured as "x86_64-redhat-linux-gnu".
+For bug reporting instructions, please see:
+<http://www.gnu.org/software/gdb/bugs/>...
+Reading symbols from /home/turu/sysopy/lab/cw01/zad2/fib...done.
+(gdb) list
+3	
+4	int fib(int n) {
+5		if (n==0) return 0;
+6		if (n==1) return 1;
+7		else return fib(n-1) + fib(n-2);
+8	}
+9	
+10	int main(int argc, char ** argv) {
+11		int n;
+12		n = atoi(argv[1]);
+(gdb) break fib.c:11
+Breakpoint 1 at 0x400586: file fib.c, line 11.
+(gdb) info breakpoints
+Num     Type           Disp Enb Address            What
+1       breakpoint     keep y   0x0000000000400586 in main at fib.c:11
+(gdb) run
+Starting program: /home/turu/sysopy/lab/cw01/zad2/fib 6
+
+Breakpoint 1, main (argc=2, argv=0x7fffffffe0a8) at fib.c:12
+12		n = atoi(argv[1]);
+(gdb) step
+atoi (nptr=0x7fffffffe3cc "6") at atoi.c:27
+27	{
+(gdb) step
+28	  return (int) strtol (nptr, (char **) NULL, 10);
+(gdb) finish
+Run till exit from #0  atoi (nptr=0x7fffffffe3cc "6") at atoi.c:28
+0x0000000000400599 in main (argc=2, argv=0x7fffffffe0a8) at fib.c:12
+12		n = atoi(argv[1]);
+Value returned is $1 = 6
+(gdb) info locals
+n = 0
+(gdb) step
+13		printf("%d\n", fib(n));
+(gdb) info locals
+n = 6
+(gdb) step
+fib (n=6) at fib.c:5
+5		if (n==0) return 0;
+(gdb) print n
+$2 = 6
+(gdb) set var n=3
+(gdb) finish
+Run till exit from #0  fib (n=3) at fib.c:5
+0x00000000004005a6 in main (argc=2, argv=0x7fffffffe0a8) at fib.c:13
+13		printf("%d\n", fib(n));
+Value returned is $3 = 2
+(gdb) info locals
+n = 6
+(gdb) step
+__printf (format=0x400670 "%d\n") at printf.c:30
+30	{
+(gdb) finish
+Run till exit from #0  __printf (format=0x400670 "%d\n") at printf.c:30
+2
+main (argc=2, argv=0x7fffffffe0a8) at fib.c:14
+14		return 0;
+Value returned is $4 = 2
+(gdb) step
+15	}
+(gdb) step
+__libc_start_main (main=0x400577 <main>, argc=2, ubp_av=0x7fffffffe0a8, init=<optimized out>, fini=<optimized out>, rtld_fini=<optimized out>, 
+    stack_end=0x7fffffffe098) at libc-start.c:258
+258	  exit (result);
+(gdb) step
+__GI_exit (status=0) at exit.c:100
+100	  __run_exit_handlers (status, &__exit_funcs, true);
+(gdb) finish
+Run till exit from #0  __GI_exit (status=0) at exit.c:100
+[Inferior 1 (process 8590) exited normally]
+(gdb) del breakpoint 1
+(gdb) info breakpoints
+No breakpoints or watchpoints.
+(gdb) break fib.c:5 if n == 0
+Breakpoint 2 at 0x400538: file fib.c, line 5.
+(gdb) info breakpoints
+Num     Type           Disp Enb Address            What
+2       breakpoint     keep y   0x0000000000400538 in fib at fib.c:5
+	stop only if n == 0
+(gdb) run
+Starting program: /home/turu/sysopy/lab/cw01/zad2/fib 6
+
+Breakpoint 2, fib (n=0) at fib.c:5
+5		if (n==0) return 0;
+(gdb) info locals
+No locals.
+(gdb) bt
+#0  fib (n=0) at fib.c:5
+#1  0x000000000040056e in fib (n=2) at fib.c:7
+#2  0x000000000040055f in fib (n=3) at fib.c:7
+#3  0x000000000040055f in fib (n=4) at fib.c:7
+#4  0x000000000040055f in fib (n=5) at fib.c:7
+#5  0x000000000040055f in fib (n=6) at fib.c:7
+#6  0x00000000004005a6 in main (argc=2, argv=0x7fffffffe0a8) at fib.c:13
+(gdb) frame 4
+#4  0x000000000040055f in fib (n=5) at fib.c:7
+7		else return fib(n-1) + fib(n-2);
+(gdb) print n
+$5 = 5
+(gdb) q
+
+

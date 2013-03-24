@@ -1,0 +1,43 @@
+#Konsola 1
+[turu@turu zad2]$ ./loop &
+[1] 8992
+
+#Konsola 2
+[turu@turu zad2]$ gdb loop 8992
+GNU gdb (GDB) Fedora (7.4.50.20120120-54.fc17)
+Copyright (C) 2012 Free Software Foundation, Inc.
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.  Type "show copying"
+and "show warranty" for details.
+This GDB was configured as "x86_64-redhat-linux-gnu".
+For bug reporting instructions, please see:
+<http://www.gnu.org/software/gdb/bugs/>...
+Reading symbols from /home/turu/sysopy/lab/cw01/zad2/loop...done.
+Attaching to program: /home/turu/sysopy/lab/cw01/zad2/loop, process 8992
+Reading symbols from /lib64/libc.so.6...Reading symbols from /usr/lib/debug/lib64/libc-2.15.so.debug...done.
+done.
+Loaded symbols for /lib64/libc.so.6
+Reading symbols from /lib64/ld-linux-x86-64.so.2...Reading symbols from /usr/lib/debug/lib64/ld-2.15.so.debug...done.
+done.
+Loaded symbols for /lib64/ld-linux-x86-64.so.2
+main () at loop.c:5
+5	    while(!stop);
+(gdb) list
+1	#include <stdio.h>
+2	
+3	int main() {
+4	    int stop = 0;
+5	    while(!stop);
+6	
+7	    return 0;
+8	}
+(gdb) print stop
+$1 = 0
+(gdb) set var stop=1
+(gdb) print stop
+$2 = 1
+(gdb) continue
+Continuing.
+[Inferior 1 (process 8992) exited normally]
+(gdb) q

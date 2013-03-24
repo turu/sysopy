@@ -1,0 +1,4 @@
+noinst_LIBRARIES=operacje.a
+
+operacje_a_SOURCES=suma.c iloczyn.c roznica.c ../reszta/macierz.c
+operacje_a_CFLAGS=-Wall -I ../include

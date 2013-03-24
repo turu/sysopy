@@ -1,0 +1,61 @@
+#                                               -*- Autoconf -*-
+# Process this file with autoconf to produce a configure script.
+
+AC_PREREQ([2.68])
+AC_INIT(mymem, 1.0, piotr.turu.turek@gmail.com)
+AC_CONFIG_SRCDIR([src/mymem.c])
+AC_CONFIG_HEADERS([config.h])
+AM_PROG_CC_C_O
+AM_INIT_AUTOMAKE
+LT_INIT
+
+# Checks for programs.
+AC_PROG_RANLIB
+
+# Checks for libraries.
+
+# Checks for header files.
+AC_CHECK_HEADERS([limits.h stdlib.h string.h])
+
+# Checks for typedefs, structures, and compiler characteristics.
+AC_TYPE_SIZE_T
+
+# Checks for library functions.
+AC_FUNC_MALLOC
+AC_FUNC_REALLOC
+
+AC_ARG_WITH(
+	allocator, 
+	AC_HELP_STRING([--with-allocator], [Podaj sposob alokacji; min = w najmniejszym wolnym obszarze (default); max = w najwiekszym; first = w pierwszym pasujacym]), 
+	[ if test "x$with_allocator" = "xmin" ; then
+         AC_DEFINE([MIN_ALLOC], [], [Okresla sposob alokacji])
+      else
+	if test "x$with_allocator" = "xmax" ; then
+	AC_DEFINE([MAX_ALLOC], [], [Okresla sposob alokacji])
+	else	
+	if test "x$with_allocator" = "xfirst" ; then
+	AC_DEFINE([FIRST_ALLOC], [], [Okresla sposob alokacji])
+	fi	
+	fi
+      fi ]
+)
+
+AC_ARG_WITH(
+	block-size, 
+	AC_HELP_STRING([--enable-block-size], [Ustaw pojedynczego rozmiar bloku, w kilobajtach (default 1)]), 
+	[ if test "x$with_block_size" = "" ; then
+         AC_MSG_RESULT([No])
+         AC_DEFINE_UNQUOTED([BLOCK_SIZE], [1], [Wielkosc pojedynczego bloku pamieci, w kilobajtach])
+      else
+         AC_DEFINE_UNQUOTED([BLOCK_SIZE], [$with_block_size], [Wielkosc pojedynczego bloku pamieci, w kilobajtach])
+         AC_MSG_RESULT([Yes])
+      fi ],	
+    [ AC_DEFINE_UNQUOTED([BLOCK_SIZE], [1], [Wielkosc pojedynczego bloku pamieci, w kilobajtach])
+	AC_MSG_RESULT([No]) ]
+)
+
+AC_CONFIG_FILES([Makefile
+                 src/Makefile
+                 src/include/Makefile
+                 src/internals/Makefile])
+AC_OUTPUT

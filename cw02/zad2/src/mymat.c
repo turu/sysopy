@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "mymat.h"
@@ -62,6 +63,17 @@ void finalize(MyMatrix * m) {
     myfree(m);
 }
 
+void inc(MyMatrix * lhs, MyMatrix * rhs) {
+    if (lhs->h != rhs->h || lhs->w != rhs->w) return;
+
+    int i, j;
+    for (i = 0; i < lhs->h; i++) {
+        for (j = 0; j < lhs->w; j++) {
+            lhs->t[i][j] += rhs->t[i][j];
+        }
+    }
+}
+
 MyMatrix * add(MyMatrix * lhs, MyMatrix * rhs) {
     unsigned int w = lhs->w < rhs->w ? lhs->w : rhs->w;
     unsigned int h = lhs->h < rhs->h ? lhs->h : rhs->h;
@@ -72,6 +84,17 @@ MyMatrix * add(MyMatrix * lhs, MyMatrix * rhs) {
     inc(ret, rhs);
 
     return ret;
+}
+
+void dec(MyMatrix * lhs, MyMatrix * rhs) {
+    if (lhs->h != rhs->h || lhs->w != rhs->w) return;
+
+    int i, j;
+    for (i = 0; i < lhs->h; i++) {
+        for (j = 0; j < lhs->w; j++) {
+            lhs->t[i][j] -= rhs->t[i][j];
+        }
+    }
 }
 
 MyMatrix * sub(MyMatrix * lhs, MyMatrix * rhs) {
@@ -87,7 +110,20 @@ MyMatrix * sub(MyMatrix * lhs, MyMatrix * rhs) {
 }
 
 MyMatrix * matmul(MyMatrix * lhs, MyMatrix * rhs) {
-    return NULL;
+    if (lhs->w != rhs->h) return NULL;
+    MyMatrix * ret = createMatrix(lhs->h, rhs->w, 0.);
+    if (ret == NULL) return NULL;
+
+    int i,j,k;
+    for (i = 0; i < ret->h; i++) {
+        for (j = 0; j < ret->w; j++) {
+            for (k = 0; k < a->width; k++) {
+                ret->tab[i][j] += lhs->tab[i][k] * rhs->tab[k][j];
+            }
+        }
+    }
+
+    return ret;
 }
 
 MyMatrix * mul(MyMatrix * m, const double c) {
@@ -101,6 +137,16 @@ MyMatrix * mul(MyMatrix * m, const double c) {
     return m;
 }
 
-char * printMatrix(MyMatrix * m, char * str = NULL) {
+void printMatrix(MyMatrix * m)
+    printf("ADDR = %d; H = %d; W = %d\n*************************************************\n", m, m->h, m->w);
 
+    int i, j;
+    for (i = 0; i < m->h; i++) {
+        printf("[ ");
+        for (j = 0; j < m->w - 1; j++) {
+            printf("%lf, ", m->t[i][j]);
+        }
+        printf("%lf ", m->t[i][j]);
+        printf("]\n");
+    }
 }

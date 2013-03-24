@@ -9,7 +9,7 @@ MyMatrix * createMatrixNoInit(unsigned int w, unsigned int h) {
     if (getMyStatus() == NULL)
         memInit(MEM_SIZE);
 
-    MyMatrix * ret = (MyMatrix*) mylloc(sizeof(MyMacierz));
+    MyMatrix * ret = (MyMatrix*) mylloc(sizeof(MyMatrix));
 
     if (ret == NULL)
         return NULL;
@@ -19,7 +19,7 @@ MyMatrix * createMatrixNoInit(unsigned int w, unsigned int h) {
     int i;
     for (i = 0; i < h; i++) {
         ret->t[i] = (double*) malloc(w * sizeof(double));
-        if(ret->t[i] == NULL) return NULL:
+        if(ret->t[i] == NULL) return NULL;
     }
     ret->h = h;
     ret->w = w;
@@ -47,7 +47,7 @@ MyMatrix * createIdentity(unsigned int w, unsigned int h) {
 
     int i;
     for (i = 0; i < h; i++) {
-        ret->[i][i] = 1.;
+        ret->t[i][i] = 1.;
     }
 
     return ret;
@@ -116,8 +116,8 @@ MyMatrix * matmul(MyMatrix * lhs, MyMatrix * rhs) {
     int i,j,k;
     for (i = 0; i < ret->h; i++) {
         for (j = 0; j < ret->w; j++) {
-            for (k = 0; k < a->width; k++) {
-                ret->tab[i][j] += lhs->tab[i][k] * rhs->tab[k][j];
+            for (k = 0; k < lhs->w; k++) {
+                ret->t[i][j] += lhs->t[i][k] * rhs->t[k][j];
             }
         }
     }
@@ -136,7 +136,7 @@ MyMatrix * mul(MyMatrix * m, const double c) {
     return m;
 }
 
-void printMatrix(MyMatrix * m)
+void printMatrix(MyMatrix * m) {
     printf("ADDR = %d; H = %d; W = %d\n*************************************************\n", m, m->h, m->w);
 
     int i, j;

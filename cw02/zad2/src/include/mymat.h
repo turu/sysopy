@@ -28,6 +28,6 @@ MyMatrix * matmul(MyMatrix * lhs, MyMatrix * rhs);
 
 MyMatrix * mul(MyMatrix * m, const double c);
 
-char * printMatrix(MyMatrix * m, char * str = NULL);
+void printMatrix(MyMatrix * m);
 
 #endif

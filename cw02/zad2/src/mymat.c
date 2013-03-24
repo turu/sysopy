@@ -1,10 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <config.h>
 #include "mymat.h"
 #include "mymem.h"
-
-#define MEM_SIZE 10000
 
 MyMatrix * createMatrixNoInit(unsigned int w, unsigned int h) {
     if (getMyStatus() == NULL)

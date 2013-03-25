@@ -56,7 +56,7 @@
 /* #undef MAX_ALLOC */
 
 /* Okresla sposob alokacji */
-/* #undef MIN_ALLOC */
+#define MIN_ALLOC /**/
 
 /* Define to 1 if your C compiler doesn't accept -c and -o together. */
 /* #undef NO_MINUS_C_MINUS_O */

@@ -1,29 +1,31 @@
 CC=gcc
-CFLAGS=-Wall -I src/include
-LIBS= 
-CDL=-ldl
-AMEM=lib/libmymem.a
-SMEM=lib/libmymem.so
-AMAT=lib/libmymat.a
-SMAT=lib/libmymat.so
-VPATH=src/:src/include:src/commons
-OBJ=execution.o
+CFLAGS=-Wall -I src/include -I ../zad1/src/include -I ../zad2/src/include
+VPATH=src/:src/include:src/commons:../zad1/src/include:../zad2/src/include
+OBJ=execution.o memtest.o
+LM=-lmymem
+LT=-lmymat
+LD_LIBRARY_PATH:=/usr/local/bin
+export LD_LIBRARY_PATH
 
 ifeq ($(MODE), STATIC)
-	LIBS += $(AMEM) $(AMAT)
-endif
-ifeq ($(MODE), SHARED)
-	LIBS += $(SMEM) $(SMAT)
+	CFLAGS += -static
 endif
 ifeq ($(MODE), DYNAMIC)
-	CFLAGS += $(CDL) -D DLL
+	CFLAGS += -ldl -D DLL
+	LM = 
+	LT = 
 endif
 
-mattest: clean copy $(OBJ) mattest.o
-	$(CC) $^ -o $@.out $(CFLAGS) $(LIBS)
+mat: clean copy $(OBJ)
+	$(CC) $(CFLAGS) -L./lib $(LT) $(OBJ) mattest.o -o $@.out
 
-memtest: clean copy $(OBJ) memtest.o
-	$(CC) $^ -o $@.out $(CFLAGS) $(LIBS)
+mem: clean copy $(OBJ)
+	$(CC) $(CFLAGS) -L./lib $(LM) $(OBJ) -o $@.out
+
+clean:
+	rm -rvf lib/*.so
+	rm -rvf lib/*.a
+	rm -rvf *.out
 
 copy:
 	cp ../zad1/src/.libs/*.so lib/
@@ -31,9 +33,4 @@ copy:
 	cp ../zad1/src/.libs/*.a lib/
 	cp ../zad2/src/.libs/*.a lib/
 
-clean:
-	rm -rvf lib/*.so
-	rm -rvf lib/*.a
-	rm -rvf *.out
-
-.PHONY: all copy clean
+.PHONY: all copy clean mat mem

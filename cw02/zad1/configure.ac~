@@ -37,12 +37,14 @@ AC_ARG_WITH(
 	AC_DEFINE([FIRST_ALLOC], [], [Okresla sposob alokacji])
 	fi	
 	fi
-      fi ]
+      fi ],
+	[ AC_DEFINE_UNQUOTED([MIN_ALLOC], [], [Okresla sposob alokacji])
+	AC_MSG_RESULT([No]) ]
 )
 
 AC_ARG_WITH(
 	block-size, 
-	AC_HELP_STRING([--enable-block-size], [Ustaw pojedynczego rozmiar bloku, w kilobajtach (default 1)]), 
+	AC_HELP_STRING([--with-block-size], [Ustaw pojedynczego rozmiar bloku, w kilobajtach (default 1)]), 
 	[ if test "x$with_block_size" = "" ; then
          AC_MSG_RESULT([No])
          AC_DEFINE_UNQUOTED([BLOCK_SIZE], [1], [Wielkosc pojedynczego bloku pamieci, w kilobajtach])

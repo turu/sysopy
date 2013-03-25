@@ -37,7 +37,9 @@ AC_ARG_WITH(
 	AC_DEFINE([FIRST_ALLOC], [], [Okresla sposob alokacji])
 	fi	
 	fi
-      fi ]
+      fi ],
+	[ AC_DEFINE_UNQUOTED([MIN_ALLOC], [], [Okresla sposob alokacji])
+	AC_MSG_RESULT([Defaulting to MIN_ALLOC]) ]
 )
 
 AC_ARG_WITH(
@@ -51,7 +53,7 @@ AC_ARG_WITH(
          AC_MSG_RESULT([Yes])
       fi ],	
     [ AC_DEFINE_UNQUOTED([BLOCK_SIZE], [1], [Wielkosc pojedynczego bloku pamieci, w kilobajtach])
-	AC_MSG_RESULT([No]) ]
+	AC_MSG_RESULT([Defaulting to BLOCK_SIZE = 1]) ]
 )
 
 AC_CONFIG_FILES([Makefile

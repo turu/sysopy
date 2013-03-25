@@ -27,11 +27,12 @@ void memInit(int blocks) {
     descriptor->memory = malloc(_totalFreeSize);
     descriptor->blockCount = blocks;
 
-    _freeList = createDescriptorList(descriptor);
-    _usedList = NULL;
-    _minFreeSize = blocks * BLOCK_SIZE;
+    _freeList = createDescriptorList(NULL);
+    pushFront(createDescriptorList(descriptor), &_freeList);
+    _usedList = createDescriptorList(NULL);
+    _minFreeSize = _totalFreeSize;
     _maxFreeSize = _minFreeSize;
-    _freeCount = blocks;
+    _freeCount = 1;
     _initialized = 1;
 }
 
@@ -45,6 +46,7 @@ void * mylloc(size_t requestedSize) {
     if (requestedSize > _maxFreeSize)
         return NULL;
 
+    //printf("About to enter internalAlloc\n");
     MyDescriptor * ret = internalAlloc(requestedSize, &_freeList, &_usedList);
 
     _usedCount++;

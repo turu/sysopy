@@ -12,7 +12,7 @@ struct {
 
 void memInit(int blocks);
 
-void finalize();
+void finalizeMemory();
 
 void * mylloc(size_t requestedSize);
 

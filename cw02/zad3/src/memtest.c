@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <time.h>
 #include "mymem.h"
 #include "execution.h"
 
@@ -10,8 +11,8 @@
 #endif
 
 int blocks = 500;
-int myllocs = 500;
-int myfrees = 500;
+int myllocs = 1;
+int myfrees = 1;
 int maxSize = 1000;
 
 int main() {
@@ -22,14 +23,17 @@ int main() {
     checkpoint();
 
     memInit(blocks);
-    printf("MyMem library initialized for %d blocks", BLOCKS);
+    printf("MyMem library initialized for %d blocks\n", blocks);
     checkpoint();
 
     int i;
+    size_t requested;
     for (i = 0; i < myllocs; i++) {
-        data[i] = (int*) mylloc((rand() % maxSize + 1) * sizeof(int));
+        requested = (rand() % maxSize + 1) * sizeof(int);
+        printf("%d %d\n", i, (int)requested);
+        data[i] = (int*) mylloc(requested);
     }
-    printf("%d chunks of max size of %d integers allocated\n", myllocs, maxSize);
+    printf("%d chunks of max size of %d allocated\n", myllocs, maxSize * sizeof(int));
     checkpoint();
 
     int id, done = 0;

@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <sys/times.h>
 #include <time.h>
 #include "mymem.h"
@@ -9,7 +10,7 @@
 
 MyStatus * firstStatus = NULL;
 MyStatus * prevStatus = NULL;
-tms * prevTime = 0;
+struct tms * prevTime = 0;
 clock_t prevReal = 0;
 struct tms firstTime;
 clock_t firstReal = 0;
@@ -22,8 +23,8 @@ void printMemStatus(MyStatus * status) {
 
     printf("Number of used descriptors: %d\n", status->usedCount);
     printf("Number of free descriptors: %d\n", status->freeCount);
-    printf("The biggest free chunk: %dB\n", status->maxFreeSize);
-    printf("The smallest free chunk: %dB\n", status->minFreeSize);
+    printf("The biggest free chunk: %dB\n", (int) status->maxFreeSize);
+    printf("The smallest free chunk: %dB\n", (int) status->minFreeSize);
 }
 
 void checkpoint() {
@@ -36,12 +37,12 @@ void checkpoint() {
         firstReal = nowReal;
         firstTime = now;
     } else {
-        printf("Time elapsed from the beginning:\tR %.2f\tS %.2f\tU %.2f\n",
+        printf("Time elapsed from the beginning:\t\tReal %f\tSys %f\tUsr %f\n",
            ((double)(nowReal - firstReal)) / CLOCKS_PER_SEC,
            ((double)(now.tms_stime - firstTime.tms_stime)) / CLK_TICKS,
            ((double)(now.tms_utime - firstTime.tms_utime)) / CLK_TICKS);
 
-        printf("Time elapsed from the previous checkpoint:\tR %.2f\tS %.2f\tU %.2f\n",
+        printf("Time elapsed from the previous checkpoint:\tReal %f\tSys %f\tUsr %f\n",
            ((double)(nowReal - prevReal)) / CLOCKS_PER_SEC,
            ((double)(now.tms_stime - prevTime->tms_stime)) / CLK_TICKS,
            ((double)(now.tms_utime - prevTime->tms_utime)) / CLK_TICKS);
@@ -49,11 +50,13 @@ void checkpoint() {
     }
 
     printMemStatus(nowStatus);
-    printf("CPU time:\tR %.2f\tS %.2f\tU %.2f\n",
+    printf("CPU time:\t\t\t\t\tReal %f\tSys %f\tUsr %f\n",
            ((double)nowReal) / CLOCKS_PER_SEC,
            ((double)now.tms_stime) / CLK_TICKS,
            ((double)now.tms_utime) / CLK_TICKS);
 
     prevTime = &now;
     prevReal = nowReal;
+
+    putchar('\n');
 }

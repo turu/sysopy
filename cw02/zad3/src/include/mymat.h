@@ -14,7 +14,7 @@ MyMatrix * createMatrix(unsigned int w, unsigned int h, const double c);
 
 MyMatrix * createIdentity(unsigned int w, unsigned int h);
 
-void finalize(MyMatrix * m);
+void finalizeMatrix(MyMatrix * m);
 
 void inc(MyMatrix * lhs, MyMatrix * rhs);
 

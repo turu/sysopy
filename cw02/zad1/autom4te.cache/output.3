@@ -11720,6 +11720,14 @@ $as_echo "@%:@define FIRST_ALLOC /**/" >>confdefs.h
 	fi	
 	fi
       fi 
+else
+   
+cat >>confdefs.h <<_ACEOF
+@%:@define MIN_ALLOC /**/
+_ACEOF
+
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: Defaulting to MIN_ALLOC" >&5
+$as_echo "Defaulting to MIN_ALLOC" >&6; } 
 
 fi
 
@@ -11750,8 +11758,8 @@ cat >>confdefs.h <<_ACEOF
 @%:@define BLOCK_SIZE 1
 _ACEOF
 
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: No" >&5
-$as_echo "No" >&6; } 
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: Defaulting to BLOCK_SIZE = 1" >&5
+$as_echo "Defaulting to BLOCK_SIZE = 1" >&6; } 
 
 fi
 

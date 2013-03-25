@@ -1,7 +1,11 @@
-libmymem_la-memlist.lo: internals/memlist.c ../config.h include/memlist.h \
- /usr/include/stdlib.h /usr/include/features.h /usr/include/sys/cdefs.h \
+libmymem_la-memlist.lo: internals/memlist.c ../config.h \
+ /usr/lib/gcc/x86_64-redhat-linux/4.7.2/include/limits.h \
+ /usr/lib/gcc/x86_64-redhat-linux/4.7.2/include/syslimits.h \
+ /usr/include/limits.h /usr/include/features.h /usr/include/sys/cdefs.h \
  /usr/include/bits/wordsize.h /usr/include/gnu/stubs.h \
- /usr/include/gnu/stubs-64.h \
+ /usr/include/gnu/stubs-64.h /usr/include/bits/posix1_lim.h \
+ /usr/include/bits/local_lim.h /usr/include/linux/limits.h \
+ /usr/include/bits/posix2_lim.h include/memlist.h /usr/include/stdlib.h \
  /usr/lib/gcc/x86_64-redhat-linux/4.7.2/include/stddef.h \
  /usr/include/bits/waitflags.h /usr/include/bits/waitstatus.h \
  /usr/include/endian.h /usr/include/bits/endian.h \
@@ -15,9 +19,11 @@ libmymem_la-memlist.lo: internals/memlist.c ../config.h include/memlist.h \
 
 ../config.h:
 
-include/memlist.h:
+/usr/lib/gcc/x86_64-redhat-linux/4.7.2/include/limits.h:
 
-/usr/include/stdlib.h:
+/usr/lib/gcc/x86_64-redhat-linux/4.7.2/include/syslimits.h:
+
+/usr/include/limits.h:
 
 /usr/include/features.h:
 
@@ -28,6 +34,18 @@ include/memlist.h:
 /usr/include/gnu/stubs.h:
 
 /usr/include/gnu/stubs-64.h:
+
+/usr/include/bits/posix1_lim.h:
+
+/usr/include/bits/local_lim.h:
+
+/usr/include/linux/limits.h:
+
+/usr/include/bits/posix2_lim.h:
+
+include/memlist.h:
+
+/usr/include/stdlib.h:
 
 /usr/lib/gcc/x86_64-redhat-linux/4.7.2/include/stddef.h:
 

@@ -18,9 +18,9 @@ typedef struct DescriptorNode {
 
 DescriptorNode * createDescriptorList(MyDescriptor * root);
 
-void defragmentDescriptorList(DescriptorNode ** head, size_t * minFree, size_t * maxFree);
+void defragmentDescriptorList(DescriptorNode ** head, size_t * minFree, size_t * maxFree, int * listCount);
 
-MyDescriptor * internalAlloc(size_t requestedSize, DescriptorNode ** freeHead, DescriptorNode ** usedHead);
+MyDescriptor * internalAlloc(size_t requestedSize, DescriptorNode ** freeHead, DescriptorNode ** usedHead, int * usedCount, int * freeCount);
 
 DescriptorNode * findDescriptor(void * ptr, DescriptorNode * usedHead);
 
@@ -28,6 +28,6 @@ void removeFromList(DescriptorNode * node, DescriptorNode ** head);
 
 void pushFront(DescriptorNode * node, DescriptorNode ** head);
 
-void updateExtremes(size_t * minFree, size_t * maxFree, DescriptorNode * head);
+void updateExtremes(size_t * minFree, size_t * maxFree, DescriptorNode * head, int * listCount);
 
 #endif

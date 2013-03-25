@@ -31,11 +31,6 @@ int main() {
     for (i = 0; i < myllocs; i++) {
         requested = (rand() % maxSize + 1) * sizeof(int);
         printf("%d %d\n", i, (int)requested);
-        data[i] = (int*) mylloc(requested);
-        data[i][0] = 8;
-        data[i][1] = 7;
-        data[i][2] = data[i][0] * data[i][1];
-        printf("%d\n", data[i][2]);
     }
     printf("%d chunks of max size of %dB allocated\n", myllocs, maxSize * sizeof(int));
     checkpoint();
@@ -51,7 +46,10 @@ int main() {
     printf("%d chunks deallocated\n", done);
     checkpoint();
 
-    mylloc(getMyStatus()->maxFreeSize + 1);
+    MyStatus * status = getMyStatus();
+
+    printf("Trying to allocate %dB chunk\n", status->maxFreeSize + 1);
+    mylloc(status->maxFreeSize + 1);
     printf("Forced defragmentation\n");
     checkpoint();
 

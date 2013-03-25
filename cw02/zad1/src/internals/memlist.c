@@ -13,25 +13,30 @@ DescriptorNode * createDescriptorList(MyDescriptor * root) {
     return ret;
 }
 
-void defragmentDescriptorList(DescriptorNode ** head, size_t * minFree, size_t * maxFree) {
+void defragmentDescriptorList(DescriptorNode ** head, size_t * minFree, size_t * maxFree, int * listCount) {
+    printf("Entered defragmentation\n");
     DescriptorNode * node = *head;
     DescriptorNode * cand;
 
     while (node) {
-        cand = findDescriptor(node->value->memory + node->value->blockCount * BLOCK_SIZE * (1 << 10), *head);
+        if (node->value != NULL) {
+            printf("Checking chunk: blocks=%d, ptr=%d\n", node->value->blockCount, node->value->memory);
+            cand = findDescriptor(node->value->memory + node->value->blockCount * BLOCK_SIZE * (1 << 10), *head);
 
-        if (cand != NULL) {
-            node->value->blockCount += cand->value->blockCount;
-            removeFromList(cand, head);
+            if (cand != NULL) {
+                printf("Candidate chunk found: blocks=%d, ptr=%d\n", cand->value->blockCount, cand->value->memory);
+                node->value->blockCount += cand->value->blockCount;
+                removeFromList(cand, head);
+            }
         }
 
         node = node->next;
     }
 
-    updateExtremes(minFree, maxFree, *head);
+    updateExtremes(minFree, maxFree, *head, listCount);
 }
 
-MyDescriptor * internalAlloc(size_t requestedSize, DescriptorNode ** freeHead, DescriptorNode ** usedHead) {
+MyDescriptor * internalAlloc(size_t requestedSize, DescriptorNode ** freeHead, DescriptorNode ** usedHead, int * usedCount, int * freeCount) {
     //printf("Entering internalAlloc");
     DescriptorNode * bestNode, * node;
     size_t nodeSize, bestSize;
@@ -89,11 +94,13 @@ MyDescriptor * internalAlloc(size_t requestedSize, DescriptorNode ** freeHead, D
     DescriptorNode * newNode = (DescriptorNode*) malloc(sizeof(DescriptorNode));
     newNode->value = ret;
     pushFront(newNode, usedHead);
+    (*usedCount)++;
 
     if (bestDescr->blockCount == 0) {
         removeFromList(bestNode, freeHead);
         free(bestDescr);
         free(bestNode);
+        (*freeCount)--;
     } else {
         bestDescr->memory += blocksNeeded * BLOCK_SIZE * (1 << 10);
         printf("Best nodes new count=%d, ptr=%d\n", bestDescr->blockCount, bestDescr->memory);
@@ -129,10 +136,11 @@ void pushFront(DescriptorNode * node, DescriptorNode ** head) {
     *head = node;
 }
 
-void updateExtremes(size_t * minFree, size_t * maxFree, DescriptorNode * head) {
+void updateExtremes(size_t * minFree, size_t * maxFree, DescriptorNode * head, int * listCount) {
     size_t nodeSize;
     *minFree = INT_MAX;
     *maxFree = 0;
+    *listCount = 0;
 
     while (head) {
         if (head->value != NULL) {
@@ -142,6 +150,7 @@ void updateExtremes(size_t * minFree, size_t * maxFree, DescriptorNode * head) {
                 *minFree = nodeSize;
             if (nodeSize > *maxFree)
                 *maxFree = nodeSize;
+            (*listCount)++;
         }
 
         head = head->next;

@@ -41,19 +41,17 @@ void * mylloc(size_t requestedSize) {
         return NULL;
 
     if (requestedSize > _maxFreeSize)
-        defragmentDescriptorList(&_freeList, &_minFreeSize, &_maxFreeSize);
+        defragmentDescriptorList(&_freeList, &_minFreeSize, &_maxFreeSize, &_freeCount);
 
     if (requestedSize > _maxFreeSize)
         return NULL;
 
     //printf("About to enter internalAlloc\n");
-    MyDescriptor * ret = internalAlloc(requestedSize, &_freeList, &_usedList);
+    MyDescriptor * ret = internalAlloc(requestedSize, &_freeList, &_usedList, &_usedCount, &_freeCount);
 
     printf("Allocated chunk: blocks=%d, ptr=%d\n", ret->blockCount, ret->memory);
 
-    _usedCount++;
-    _freeCount--;
-    _totalFreeSize += requestedSize;
+    _totalFreeSize -= requestedSize;
 
     return ret->memory;
 }
@@ -89,7 +87,7 @@ MyStatus * getMyStatus() {
     if (!_initialized)
         return NULL;
 
-    updateExtremes(&_minFreeSize, &_maxFreeSize, _freeList);
+    updateExtremes(&_minFreeSize, &_maxFreeSize, _freeList, &_freeCount);
 
     MyStatus * ret = (MyStatus*) malloc(sizeof(MyStatus));
 

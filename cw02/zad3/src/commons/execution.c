@@ -9,7 +9,7 @@
 
 MyStatus * firstStatus = NULL;
 MyStatus * prevStatus = NULL;
-struct tms prevTime = 0;
+tms * prevTime = 0;
 clock_t prevReal = 0;
 struct tms firstTime;
 clock_t firstReal = 0;
@@ -30,6 +30,7 @@ void checkpoint() {
     struct tms now;
     times(&now);
     clock_t nowReal = clock();
+    MyStatus * nowStatus = getMyStatus();
 
     if(!prevTime){
         firstReal = nowReal;
@@ -42,16 +43,17 @@ void checkpoint() {
 
         printf("Time elapsed from the previous checkpoint:\tR %.2f\tS %.2f\tU %.2f\n",
            ((double)(nowReal - prevReal)) / CLOCKS_PER_SEC,
-           ((double)(now.tms_stime-previousTime->tms_stime)) / CLK_TICKS,
-           ((double)(now.tms_utime-previousTime->tms_utime)) / CLK_TICKS);
+           ((double)(now.tms_stime - prevTime->tms_stime)) / CLK_TICKS,
+           ((double)(now.tms_utime - prevTime->tms_utime)) / CLK_TICKS);
 
     }
 
-    printMemStatus();
+    printMemStatus(nowStatus);
     printf("CPU time:\tR %.2f\tS %.2f\tU %.2f\n",
            ((double)nowReal) / CLOCKS_PER_SEC,
            ((double)now.tms_stime) / CLK_TICKS,
            ((double)now.tms_utime) / CLK_TICKS);
-    previousTime=&now;
-    previousReal=nowReal;
+
+    prevTime = &now;
+    prevReal = nowReal;
 }

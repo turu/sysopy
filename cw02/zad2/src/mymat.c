@@ -53,7 +53,7 @@ MyMatrix * createIdentity(unsigned int w, unsigned int h) {
     return ret;
 }
 
-void finalize(MyMatrix * m) {
+void finalizeMatrix(MyMatrix * m) {
     int i;
     for (i = 0; i < m->h; i++) {
         myfree(m->t[i]);

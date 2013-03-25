@@ -3,6 +3,6 @@
 
 void checkpoint();
 
-void printMemStatus();
+void printMemStatus(MyStatus * status);
 
 #endif

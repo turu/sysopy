@@ -99,7 +99,7 @@ MyStatus * getMyStatus() {
     return ret;
 }
 
-void finalize() {
+void finalizeMemory() {
     if (!_initialized) return;
 
     DescriptorNode * node;

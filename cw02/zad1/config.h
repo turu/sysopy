@@ -2,10 +2,10 @@
 /* config.h.in.  Generated from configure.ac by autoheader.  */
 
 /* Wielkosc pojedynczego bloku pamieci, w kilobajtach */
-#define BLOCK_SIZE 1024
+#define BLOCK_SIZE 1
 
 /* Okresla sposob alokacji */
-#define FIRST_ALLOC /**/
+/* #undef FIRST_ALLOC */
 
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #define HAVE_DLFCN_H 1

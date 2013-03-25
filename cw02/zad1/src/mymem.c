@@ -19,12 +19,15 @@ char _initialized = 0;
 
 size_t _totalFreeSize = 0;
 
+void * _entry;
+
 
 void memInit(int blocks) {
     _totalFreeSize = blocks * BLOCK_SIZE * (1 << 10);
 
     MyDescriptor * descriptor = (MyDescriptor*) malloc(sizeof(MyDescriptor));
     descriptor->memory = malloc(_totalFreeSize);
+    _entry = descriptor->memory;
     descriptor->blockCount = blocks;
 
     _freeList = createDescriptorList(NULL);
@@ -107,7 +110,6 @@ void finalizeMemory() {
     while (_usedCount--) {
         node = _usedList;
         removeFromList(node, &_usedList);
-        free(node->value->memory);
         free(node->value);
         free(node);
     }
@@ -119,8 +121,10 @@ void finalizeMemory() {
         free(node);
     }
 
+    free(_entry);
+
     _minFreeSize = INT_MAX;
-    _maxFreeSize = INT_MIN;
+    _maxFreeSize = 0;
     _initialized = 0;
     _totalFreeSize = 0;
 }

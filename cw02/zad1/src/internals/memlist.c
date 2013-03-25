@@ -34,6 +34,7 @@ void defragmentDescriptorList(DescriptorNode ** head, size_t * minFree, size_t *
     }
 
     updateExtremes(minFree, maxFree, *head, listCount);
+    printf("New maxFree=%d\n", *maxFree);
 }
 
 MyDescriptor * internalAlloc(size_t requestedSize, DescriptorNode ** freeHead, DescriptorNode ** usedHead, int * usedCount, int * freeCount) {
@@ -57,6 +58,7 @@ MyDescriptor * internalAlloc(size_t requestedSize, DescriptorNode ** freeHead, D
     while (node) {
         if (node->value != NULL) {
             nodeSize = node->value->blockCount * BLOCK_SIZE * (1 << 10);
+            printf("nodeSize=%d\n", nodeSize);
 
             #ifdef MAX_ALLOC
             if (nodeSize > bestSize) {
@@ -64,9 +66,10 @@ MyDescriptor * internalAlloc(size_t requestedSize, DescriptorNode ** freeHead, D
                 bestNode = node;
             }
             #else
-            if (nodeSize >= requestedSize && nodeSize < bestSize) {
+            if (nodeSize >= requestedSize && (bestSize < requestedSize || nodeSize < bestSize)) {
                 bestSize = nodeSize;
                 bestNode = node;
+                printf("Best node size=%d, blocks=%d, ptr=%d\n", bestSize, bestNode->value->blockCount, bestNode->value->memory);
             }
             #endif
         }

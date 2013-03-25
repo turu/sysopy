@@ -11,8 +11,8 @@
 #endif
 
 int blocks = 500;
-int myllocs = 1;
-int myfrees = 1;
+int myllocs = 50;
+int myfrees = 50;
 int maxSize = 1000;
 
 int main() {
@@ -31,6 +31,7 @@ int main() {
     for (i = 0; i < myllocs; i++) {
         requested = (rand() % maxSize + 1) * sizeof(int);
         printf("%d %d\n", i, (int)requested);
+        data[i] = (int*) mylloc(requested);
     }
     printf("%d chunks of max size of %dB allocated\n", myllocs, maxSize * sizeof(int));
     checkpoint();
@@ -40,6 +41,7 @@ int main() {
         id = rand() % myllocs;
         if (data[id] != NULL) {
             myfree(data[id]);
+            data[id] = NULL;
             done++;
         }
     }
@@ -49,8 +51,10 @@ int main() {
     MyStatus * status = getMyStatus();
 
     printf("Trying to allocate %dB chunk\n", status->maxFreeSize + 1);
-    mylloc(status->maxFreeSize + 1);
-    printf("Forced defragmentation\n");
+    void * ptr = mylloc(status->maxFreeSize + 1);
+    printf("Forced defragmentation. ");
+    if (ptr != NULL) printf("Thanks to degragmentation, this chunk was allocated");
+    putchar('\n');
     checkpoint();
 
     finalizeMemory();

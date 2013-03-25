@@ -32,8 +32,12 @@ int main() {
         requested = (rand() % maxSize + 1) * sizeof(int);
         printf("%d %d\n", i, (int)requested);
         data[i] = (int*) mylloc(requested);
+        data[i][0] = 8;
+        data[i][1] = 7;
+        data[i][2] = data[i][0] * data[i][1];
+        printf("%d\n", data[i][2]);
     }
-    printf("%d chunks of max size of %d allocated\n", myllocs, maxSize * sizeof(int));
+    printf("%d chunks of max size of %dB allocated\n", myllocs, maxSize * sizeof(int));
     checkpoint();
 
     int id, done = 0;

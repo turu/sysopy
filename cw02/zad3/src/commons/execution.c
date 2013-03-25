@@ -23,7 +23,7 @@ void printMemStatus(MyStatus * status) {
 
     printf("Number of used descriptors: %d\n", status->usedCount);
     printf("Number of free descriptors: %d\n", status->freeCount);
-    printf("The biggest free chunk: %dB\n", (int) status->maxFreeSize);
+    printf("The biggest free chunk:  %dB\n", (int) status->maxFreeSize);
     printf("The smallest free chunk: %dB\n", (int) status->minFreeSize);
 }
 

@@ -1,9 +1,7 @@
 CC=gcc
 CFLAGS=-Wall -I src/include -I ../zad1/src/include -I ../zad2/src/include
 VPATH=src/:src/include:src/commons:../zad1/src/include:../zad2/src/include
-LIB=-lmymat -lmymem
-LD_LIBRARY_PATH=/usr/local/bin:./lib
-export LD_LIBRARY_PATH
+LIB=-lmymat -lmymem -lrt
 
 ifeq ($(MODE), STATIC)
 	CFLAGS += -static
@@ -12,6 +10,8 @@ ifeq ($(MODE), DYNAMIC)
 	CFLAGS += -ldl -D DLL
 	LIB = 
 endif
+
+all: clean copy mem mat
 
 mat: execution.o mattest.o
 	$(CC) $(CFLAGS) -L./lib $^ $(LIB) -o $@.out
@@ -23,7 +23,7 @@ clean:
 	rm -rvf lib/*.so*
 	rm -rvf lib/*.a
 	rm -rvf *.out
-	rm -rvf *.o
+	#rm -rvf *.o
 
 copy:
 	cp ../zad1/src/.libs/*.so* lib/

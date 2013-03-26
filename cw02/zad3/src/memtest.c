@@ -22,28 +22,31 @@ int main() {
     printf("Execution started!!!\n");
     checkpoint();
 
-    sleep(10);
+    sleep(1);
 
     memInit(blocks);
-    printf("MyMem library initialized for %d blocks\n", blocks);
+    printf("\nMyMem library initialized for %d blocks\n", blocks);
     checkpoint();
 
+    printf("\nAllocating chunks:\n");
     int i;
     size_t requested;
     for (i = 0; i < myllocs; i++) {
         requested = (rand() % maxSize + 1) * sizeof(int);
-        printf("%d %d\n", i, (int)requested);
+        printf("Chunk ID=%d, requested size = %dB\n", i, (int)requested);
         data[i] = (int*) mylloc(requested);
     }
-    printf("%d chunks of max size of %dB allocated\n", myllocs, maxSize * sizeof(int));
+    printf("%d chunks of max size of %dB allocated\n", myllocs, (int)(maxSize * sizeof(int)));
     checkpoint();
 
+    printf("\nDeallocating random chunks:\n");
     int id, done = 0;
     for (i = 0; i < myfrees; i++) {
         id = rand() % myllocs;
         if (data[id] != NULL) {
             myfree(data[id]);
             data[id] = NULL;
+            printf("Deallocating chunk ID=%d\n", id);
             done++;
         }
     }
@@ -52,7 +55,7 @@ int main() {
 
     MyStatus * status = getMyStatus();
 
-    printf("Trying to allocate %dB chunk\n", status->maxFreeSize + 1);
+    printf("\nTrying to allocate %dB chunk\n", (int)(status->maxFreeSize + 1));
     void * ptr = mylloc(status->maxFreeSize + 1);
     printf("Forced defragmentation. ");
     if (ptr != NULL) printf("Thanks to degragmentation, this chunk was allocated");
@@ -60,7 +63,7 @@ int main() {
     checkpoint();
 
     finalizeMemory();
-    printf("Finalized library\n");
+    printf("\nFinalized library\n");
     checkpoint();
 
     free(data);

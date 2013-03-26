@@ -6,14 +6,15 @@
 #include "mymem.h"
 #include "execution.h"
 
-#define CLK_TICKS sysconf(_SC_CLK_TCK)
+#define CLK
 
 MyStatus * firstStatus = NULL;
 MyStatus * prevStatus = NULL;
-struct tms * prevTime = 0;
-clock_t prevReal = 0;
-struct tms firstTime;
-clock_t firstReal = 0;
+
+char initialized = 0;
+long startTime = 0;
+float realStart, sysStart, usrStart, realPrev, sysPrev, usrPrev;
+long clk = 0;
 
 void printMemStatus(MyStatus * status) {
     if (status == NULL) {
@@ -28,35 +29,48 @@ void printMemStatus(MyStatus * status) {
 }
 
 void checkpoint() {
-    struct tms now;
-    times(&now);
-    clock_t nowReal = clock();
+    long t;
+    struct tms tt;
+    float real, usr, sys;
+    if (!initialized) {
+        startTime = times(NULL);
+        clk = sysconf(_SC_CLK_TCK);
+    }
+    t = times(&tt);
+    real = (float)((t - startTime) / (float)(clk));
+    sys  = (float)((tt.tms_stime) / (float)(clk));
+    usr  = (float)((tt.tms_utime) / (float)(clk));
+
+    if(!initialized){
+        realStart = real;
+        sysStart = sys;
+        usrStart = usr;
+        initialized = 1;
+    }
+
     MyStatus * nowStatus = getMyStatus();
 
-    if(!prevTime){
-        firstReal = nowReal;
-        firstTime = now;
-    } else {
+    if (initialized) {
         printf("Time elapsed from the beginning:\t\tReal %f\tSys %f\tUsr %f\n",
-           ((double)(nowReal - firstReal)) / (double)(CLOCKS_PER_SEC),
-           ((double)(now.tms_stime - firstTime.tms_stime)) / (double)(CLK_TICKS),
-           ((double)(now.tms_utime - firstTime.tms_utime)) / (double)(CLK_TICKS));
+               real - realStart,
+               sys - sysStart,
+               usr - usrStart);
 
         printf("Time elapsed from the previous checkpoint:\tReal %f\tSys %f\tUsr %f\n",
-           ((double)(nowReal - prevReal)) / (double)(CLOCKS_PER_SEC),
-           ((double)(now.tms_stime - prevTime->tms_stime)) / (double)(CLK_TICKS),
-           ((double)(now.tms_utime - prevTime->tms_utime)) / (double)(CLK_TICKS));
-
+               real - realPrev,
+               sys - sysPrev,
+               usr - usrPrev);
     }
 
     printMemStatus(nowStatus);
     printf("CPU time:\t\t\t\t\tReal %f\tSys %f\tUsr %f\n",
-           ((double)nowReal) / (double)(CLOCKS_PER_SEC),
-           ((double)now.tms_stime) / (double)(CLK_TICKS),
-           ((double)now.tms_utime) / (double)(CLK_TICKS));
+           real,
+           sys,
+           usr);
 
-    prevTime = &now;
-    prevReal = nowReal;
+    realPrev = real;
+    sysPrev = sys;
+    usrPrev = usr;
 
     putchar('\n');
 }

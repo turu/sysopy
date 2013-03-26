@@ -36,7 +36,7 @@ int main() {
 
     printf("Execution started!!!\n");
     checkpoint();
-    #ifndef DLL
+    #ifdef DLL
     printMemStatus(getMyStatus());
     #endif
 
@@ -45,7 +45,7 @@ int main() {
     memInit(blocks);
     printf("\nMyMem library initialized for %d blocks\n", blocks);
     checkpoint();
-    #ifndef DLL
+    #ifdef DLL
     printMemStatus(getMyStatus());
     #endif
 
@@ -59,7 +59,7 @@ int main() {
     }
     printf("%d chunks of max size of %dB allocated\n", myllocs, (int)(maxSize * sizeof(int)));
     checkpoint();
-    #ifndef DLL
+    #ifdef DLL
     printMemStatus(getMyStatus());
     #endif
 
@@ -76,7 +76,7 @@ int main() {
     }
     printf("%d chunks deallocated\n", done);
     checkpoint();
-    #ifndef DLL
+    #ifdef DLL
     printMemStatus(getMyStatus());
     #endif
 
@@ -88,14 +88,14 @@ int main() {
     if (ptr != NULL) printf("Thanks to degragmentation, this chunk was allocated");
     putchar('\n');
     checkpoint();
-    #ifndef DLL
+    #ifdef DLL
     printMemStatus(getMyStatus());
     #endif
 
     finalizeMemory();
     printf("\nFinalized library\n");
     checkpoint();
-    #ifndef DLL
+    #ifdef DLL
     printMemStatus(getMyStatus());
     #endif
 

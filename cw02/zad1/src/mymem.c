@@ -52,7 +52,7 @@ void * mylloc(size_t requestedSize) {
     //printf("About to enter internalAlloc\n");
     MyDescriptor * ret = internalAlloc(requestedSize, &_freeList, &_usedList, &_usedCount, &_freeCount);
 
-    printf("Allocated chunk: blocks=%d, ptr=%d\n", ret->blockCount, ret->memory);
+    //printf("Allocated chunk: blocks=%d, ptr=%d\n", ret->blockCount, ret->memory);
 
     _totalFreeSize -= requestedSize;
 
@@ -64,7 +64,7 @@ int myfree(void * blockPtr) {
         return -1;
 
     DescriptorNode * node = findDescriptor(blockPtr, _usedList);
-    printf("Chunk to free: blocks=%d, ptr=%d\n", node->value->blockCount, node->value->memory);
+    //printf("Chunk to free: blocks=%d, ptr=%d\n", node->value->blockCount, node->value->memory);
 
     size_t nodeSize = node->value->blockCount * (BLOCK_SIZE << 10);
 

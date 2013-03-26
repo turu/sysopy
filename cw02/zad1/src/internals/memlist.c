@@ -14,17 +14,17 @@ DescriptorNode * createDescriptorList(MyDescriptor * root) {
 }
 
 void defragmentDescriptorList(DescriptorNode ** head, size_t * minFree, size_t * maxFree, int * listCount) {
-    printf("Entered defragmentation\n");
+    //printf("Entered defragmentation\n");
     DescriptorNode * node = *head;
     DescriptorNode * cand;
 
     while (node) {
         if (node->value != NULL) {
-            printf("Checking chunk: blocks=%d, ptr=%d\n", node->value->blockCount, node->value->memory);
+            //printf("Checking chunk: blocks=%d, ptr=%d\n", node->value->blockCount, node->value->memory);
             cand = findDescriptor(node->value->memory + node->value->blockCount * BLOCK_SIZE * (1 << 10), *head);
 
             if (cand != NULL) {
-                printf("Candidate chunk found: blocks=%d, ptr=%d\n", cand->value->blockCount, cand->value->memory);
+                //printf("Candidate chunk found: blocks=%d, ptr=%d\n", cand->value->blockCount, cand->value->memory);
                 node->value->blockCount += cand->value->blockCount;
                 removeFromList(cand, head);
             }
@@ -34,7 +34,7 @@ void defragmentDescriptorList(DescriptorNode ** head, size_t * minFree, size_t *
     }
 
     updateExtremes(minFree, maxFree, *head, listCount);
-    printf("New maxFree=%d\n", *maxFree);
+    //printf("New maxFree=%d\n", *maxFree);
 }
 
 MyDescriptor * internalAlloc(size_t requestedSize, DescriptorNode ** freeHead, DescriptorNode ** usedHead, int * usedCount, int * freeCount) {
@@ -58,7 +58,7 @@ MyDescriptor * internalAlloc(size_t requestedSize, DescriptorNode ** freeHead, D
     while (node) {
         if (node->value != NULL) {
             nodeSize = node->value->blockCount * BLOCK_SIZE * (1 << 10);
-            printf("nodeSize=%d\n", nodeSize);
+            //printf("nodeSize=%d\n", nodeSize);
 
             #ifdef MAX_ALLOC
             if (nodeSize > bestSize) {
@@ -69,7 +69,7 @@ MyDescriptor * internalAlloc(size_t requestedSize, DescriptorNode ** freeHead, D
             if (nodeSize >= requestedSize && (bestSize < requestedSize || nodeSize < bestSize)) {
                 bestSize = nodeSize;
                 bestNode = node;
-                printf("Best node size=%d, blocks=%d, ptr=%d\n", bestSize, bestNode->value->blockCount, bestNode->value->memory);
+                //printf("Best node size=%d, blocks=%d, ptr=%d\n", bestSize, bestNode->value->blockCount, bestNode->value->memory);
             }
             #endif
         }
@@ -78,13 +78,13 @@ MyDescriptor * internalAlloc(size_t requestedSize, DescriptorNode ** freeHead, D
     }
     #endif
 
-    printf("Best block count=%d, ptr=%d\n", bestNode->value->blockCount, bestNode->value->memory);
+    //printf("Best block count=%d, ptr=%d\n", bestNode->value->blockCount, bestNode->value->memory);
 
     int blocksNeeded = requestedSize / (BLOCK_SIZE << 10);
     if (requestedSize - blocksNeeded * (BLOCK_SIZE << 10) > 0)
         blocksNeeded++;
 
-    printf("Blocks needed=%d\n", blocksNeeded);
+    //printf("Blocks needed=%d\n", blocksNeeded);
 
     MyDescriptor * bestDescr = bestNode->value;
     bestDescr->blockCount -= blocksNeeded;
@@ -106,7 +106,7 @@ MyDescriptor * internalAlloc(size_t requestedSize, DescriptorNode ** freeHead, D
         (*freeCount)--;
     } else {
         bestDescr->memory += blocksNeeded * BLOCK_SIZE * (1 << 10);
-        printf("Best nodes new count=%d, ptr=%d\n", bestDescr->blockCount, bestDescr->memory);
+        //printf("Best nodes new count=%d, ptr=%d\n", bestDescr->blockCount, bestDescr->memory);
         //bestDescr->memory = realloc(bestDescr->memory, bestDescr->blockCount * BLOCK_SIZE * (1 << 10));
     }
 

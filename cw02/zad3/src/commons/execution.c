@@ -38,22 +38,22 @@ void checkpoint() {
         firstTime = now;
     } else {
         printf("Time elapsed from the beginning:\t\tReal %f\tSys %f\tUsr %f\n",
-           ((double)(nowReal - firstReal)) / CLOCKS_PER_SEC,
-           ((double)(now.tms_stime - firstTime.tms_stime)) / CLK_TICKS,
-           ((double)(now.tms_utime - firstTime.tms_utime)) / CLK_TICKS);
+           ((double)(nowReal - firstReal)) / (double)(CLOCKS_PER_SEC),
+           ((double)(now.tms_stime - firstTime.tms_stime)) / (double)(CLK_TICKS),
+           ((double)(now.tms_utime - firstTime.tms_utime)) / (double)(CLK_TICKS));
 
         printf("Time elapsed from the previous checkpoint:\tReal %f\tSys %f\tUsr %f\n",
-           ((double)(nowReal - prevReal)) / CLOCKS_PER_SEC,
-           ((double)(now.tms_stime - prevTime->tms_stime)) / CLK_TICKS,
-           ((double)(now.tms_utime - prevTime->tms_utime)) / CLK_TICKS);
+           ((double)(nowReal - prevReal)) / (double)(CLOCKS_PER_SEC),
+           ((double)(now.tms_stime - prevTime->tms_stime)) / (double)(CLK_TICKS),
+           ((double)(now.tms_utime - prevTime->tms_utime)) / (double)(CLK_TICKS));
 
     }
 
     printMemStatus(nowStatus);
     printf("CPU time:\t\t\t\t\tReal %f\tSys %f\tUsr %f\n",
-           ((double)nowReal) / CLOCKS_PER_SEC,
-           ((double)now.tms_stime) / CLK_TICKS,
-           ((double)now.tms_utime) / CLK_TICKS);
+           ((double)nowReal) / (double)(CLOCKS_PER_SEC),
+           ((double)now.tms_stime) / (double)(CLK_TICKS),
+           ((double)now.tms_utime) / (double)(CLK_TICKS));
 
     prevTime = &now;
     prevReal = nowReal;

@@ -2,7 +2,7 @@ CC=gcc
 CFLAGS=-Wall -I src/include -I ../zad1/src/include -I ../zad2/src/include
 VPATH=src/:src/include:src/commons:../zad1/src/include:../zad2/src/include
 LIB=-lmymat -lmymem
-LD_LIBRARY_PATH:=/usr/local/bin:./lib
+LD_LIBRARY_PATH=/usr/local/bin:./lib
 export LD_LIBRARY_PATH
 
 ifeq ($(MODE), STATIC)
@@ -20,7 +20,7 @@ mem: execution.o memtest.o
 	$(CC) $(CFLAGS) -L./lib $^ $(LIB) -o $@.out
 
 clean:
-	rm -rvf lib/*.so
+	rm -rvf lib/*.so*
 	rm -rvf lib/*.a
 	rm -rvf *.out
 	rm -rvf *.o

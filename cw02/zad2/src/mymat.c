@@ -18,7 +18,7 @@ MyMatrix * createMatrixNoInit(unsigned int w, unsigned int h) {
     if (ret->t == NULL) return NULL;
     int i;
     for (i = 0; i < h; i++) {
-        ret->t[i] = (double*) malloc(w * sizeof(double));
+        ret->t[i] = (double*) mylloc(w * sizeof(double));
         if(ret->t[i] == NULL) return NULL;
     }
     ret->h = h;
@@ -102,7 +102,7 @@ MyMatrix * sub(MyMatrix * lhs, MyMatrix * rhs) {
 
     MyMatrix * ret = createMatrix(w, h, 0.);
     if (ret == NULL) return NULL;
-    dec(ret, lhs);
+    inc(ret, lhs);
     dec(ret, rhs);
 
     return ret;
@@ -137,7 +137,7 @@ MyMatrix * mul(MyMatrix * m, const double c) {
 }
 
 void printMatrix(MyMatrix * m) {
-    printf("ADDR = %d; H = %d; W = %d\n*************************************************\n", m, m->h, m->w);
+    printf("ADDR = %d; H = %d; W = %d\n***************************************************************************************\n", m, m->h, m->w);
 
     int i, j;
     for (i = 0; i < m->h; i++) {
@@ -148,4 +148,6 @@ void printMatrix(MyMatrix * m) {
         printf("%lf ", m->t[i][j]);
         printf("]\n");
     }
+
+    printf("***************************************************************************************\n");
 }

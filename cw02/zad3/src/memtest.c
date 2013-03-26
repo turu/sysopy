@@ -7,7 +7,7 @@
 #include "execution.h"
 
 #ifdef DLL
-#include <dlfnc.h>
+#include <dlfcn.h>
 #endif
 
 int blocks = 500;
@@ -16,17 +16,38 @@ int myfrees = 50;
 int maxSize = 1000;
 
 int main() {
+    #ifdef DLL
+	void * handle;
+	handle = dlopen("lib/libmymem.so", RTLD_LAZY);
+	if(handle == NULL) {
+		fprintf(stderr, "Nieudane zaladowanie biblioteki libmymem.so\n");
+		return -1;
+	}
+
+    void (*memInit)(int) = dlsym(handle, "memInit");
+    void (*finalizeMemory)() = dlsym(handle, "finalizeMemory");
+    void * (*mylloc)(size_t) = dlsym(handle, "mylloc");
+    int (*myfree)(void*) = dlsym(handle, "myfree");
+    MyStatus * (*getMyStatus)() = dlsym(handle, "getMyStatus");
+	#endif
+
     srand(time(NULL));
     int ** data = (int**) malloc(myllocs * sizeof(int*));
 
     printf("Execution started!!!\n");
     checkpoint();
+    #ifndef DLL
+    printMemStatus(getMyStatus());
+    #endif
 
     sleep(1);
 
     memInit(blocks);
     printf("\nMyMem library initialized for %d blocks\n", blocks);
     checkpoint();
+    #ifndef DLL
+    printMemStatus(getMyStatus());
+    #endif
 
     printf("\nAllocating chunks:\n");
     int i;
@@ -38,6 +59,9 @@ int main() {
     }
     printf("%d chunks of max size of %dB allocated\n", myllocs, (int)(maxSize * sizeof(int)));
     checkpoint();
+    #ifndef DLL
+    printMemStatus(getMyStatus());
+    #endif
 
     printf("\nDeallocating random chunks:\n");
     int id, done = 0;
@@ -52,6 +76,9 @@ int main() {
     }
     printf("%d chunks deallocated\n", done);
     checkpoint();
+    #ifndef DLL
+    printMemStatus(getMyStatus());
+    #endif
 
     MyStatus * status = getMyStatus();
 
@@ -61,11 +88,22 @@ int main() {
     if (ptr != NULL) printf("Thanks to degragmentation, this chunk was allocated");
     putchar('\n');
     checkpoint();
+    #ifndef DLL
+    printMemStatus(getMyStatus());
+    #endif
 
     finalizeMemory();
     printf("\nFinalized library\n");
     checkpoint();
+    #ifndef DLL
+    printMemStatus(getMyStatus());
+    #endif
 
     free(data);
+
+    #ifdef DLL
+	dlclose(handle);
+	#endif
+
     return 0;
 }

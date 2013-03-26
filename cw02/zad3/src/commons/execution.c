@@ -6,7 +6,6 @@
 #include "mymem.h"
 #include "execution.h"
 
-#define CLK
 
 MyStatus * firstStatus = NULL;
 MyStatus * prevStatus = NULL;
@@ -48,7 +47,9 @@ void checkpoint() {
         initialized = 1;
     }
 
+    #ifndef DLL
     MyStatus * nowStatus = getMyStatus();
+    #endif
 
     if (initialized) {
         printf("Time elapsed from the beginning:\t\tReal %f\tSys %f\tUsr %f\n",
@@ -62,7 +63,9 @@ void checkpoint() {
                usr - usrPrev);
     }
 
+    #ifndef DLL
     printMemStatus(nowStatus);
+    #endif
     printf("CPU time:\t\t\t\t\tReal %f\tSys %f\tUsr %f\n",
            real,
            sys,

@@ -23,7 +23,7 @@ clean:
 	rm -rvf lib/*.so*
 	rm -rvf lib/*.a
 	rm -rvf *.out
-	#rm -rvf *.o
+	rm -rvf *.o
 
 copy:
 	cp ../zad1/src/.libs/*.so* lib/

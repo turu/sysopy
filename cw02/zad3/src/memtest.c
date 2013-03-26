@@ -19,8 +19,10 @@ int main() {
     srand(time(NULL));
     int ** data = (int**) malloc(myllocs * sizeof(int*));
 
-    printf("Execution started\n");
+    printf("Execution started!!!\n");
     checkpoint();
+
+    sleep(10);
 
     memInit(blocks);
     printf("MyMem library initialized for %d blocks\n", blocks);

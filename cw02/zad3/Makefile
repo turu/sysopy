@@ -4,7 +4,7 @@ VPATH=src/:src/include:src/commons:../zad1/src/include:../zad2/src/include
 OBJ=execution.o memtest.o
 LM=-lmymem
 LT=-lmymat
-LD_LIBRARY_PATH:=/usr/local/bin
+LD_LIBRARY_PATH:=/usr/local/bin:./lib
 export LD_LIBRARY_PATH
 
 ifeq ($(MODE), STATIC)
@@ -17,10 +17,10 @@ ifeq ($(MODE), DYNAMIC)
 endif
 
 mat: clean copy $(OBJ)
-	$(CC) $(CFLAGS) -L./lib $(LT) $(OBJ) mattest.o -o $@.out
+	$(CC) $(CFLAGS) -L./lib $(OBJ) mattest.o $(LT) -o $@.out
 
 mem: clean copy $(OBJ)
-	$(CC) $(CFLAGS) -L./lib $(LM) $(OBJ) -o $@.out
+	$(CC) $(CFLAGS) -L./lib $(OBJ) $(LM) -o $@.out
 
 clean:
 	rm -rvf lib/*.so
@@ -28,8 +28,8 @@ clean:
 	rm -rvf *.out
 
 copy:
-	cp ../zad1/src/.libs/*.so lib/
-	cp ../zad2/src/.libs/*.so lib/
+	cp ../zad1/src/.libs/*.so* lib/
+	cp ../zad2/src/.libs/*.so* lib/
 	cp ../zad1/src/.libs/*.a lib/
 	cp ../zad2/src/.libs/*.a lib/
 

@@ -11,19 +11,6 @@
 
 int main() {
     #ifdef DLL
-    void * handle2;
-	handle2 = dlopen("lib/libmymem.so", RTLD_LAZY);
-	if(handle2 == NULL) {
-		fprintf(stderr, "Nieudane zaladowanie biblioteki libmymem.so\n");
-		return -1;
-	}
-
-    void (*memInit)(int) = dlsym(handle2, "memInit");
-    void (*finalizeMemory)() = dlsym(handle2, "finalizeMemory");
-    void * (*mylloc)(size_t) = dlsym(handle2, "mylloc");
-    int (*myfree)(void*) = dlsym(handle2, "myfree");
-    MyStatus * (*getMyStatus)() = dlsym(handle2, "getMyStatus");
-
 	void * handle;
 	handle = dlopen("lib/libmymat.so", RTLD_LAZY);
 	if(handle == NULL) {
@@ -111,6 +98,10 @@ int main() {
 
     finalizeMemory();
     printf("Exiting...\n");
+
+    #ifdef DLL
+	dlclose(handle);
+	#endif
 
     return 0;
 }

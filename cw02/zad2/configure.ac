@@ -34,7 +34,7 @@ AC_ARG_WITH(
          AC_MSG_RESULT([Yes])
       fi ],	
     [ AC_DEFINE_UNQUOTED([MEM_SIZE], [100], [Rozmiar, wyrazony w blokach pamieci biblioteki mymem, pamieci dostepnej dla biblioteki])
-	AC_MSG_RESULT([No]) ]
+	AC_MSG_RESULT([Ustawiam defaultowy rozmiar pamieci o rozmiarze 100 blokow]) ]
 )
 
 AC_CONFIG_FILES([Makefile

@@ -14,7 +14,7 @@ endif
 all: clean copy mem mat
 
 mat: execution.o mattest.o
-	$(CC) $(CFLAGS) -L./lib $^ $(LIB) -o $@.out
+	$(CC) $(CFLAGS) -L./lib $^ $(LIB) -lmymem -o $@.out
 
 mem: execution.o memtest.o 
 	$(CC) $(CFLAGS) -L./lib $^ $(LIB) -o $@.out

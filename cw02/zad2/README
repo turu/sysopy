@@ -1,0 +1,5 @@
+Biblioteke budujemy wedlug schematu:
+./configure --with-mem-size=Num (ilosc blokow pamieci biblioteki mymem uzywanej przez mymat)
+make lub sudo make install
+
+w przypadku klopotow nalezy uruchomic polecenie ./autogen.sh przed wykonaniem configure

@@ -4,6 +4,7 @@
 #include <dirent.h>
 #include <string.h>
 #include <sys/types.h>
+#include <sys/stat.h>
 
 void printHelp() {
     printf("Program computes total size of regular files in a given directory \
@@ -11,7 +12,19 @@ and it's subdirectories.\nUsage:\n-d <path to a directory>\n");
 }
 
 int retrieveFileSize(char * filepath) {
-    //TODO: retrieving file size
+    struct stat * fstat = (struct stat*) malloc(sizeof(struct stat));
+
+    if (stat(filepath, fstat) == -1) {
+        printf("Error occured while reading file %s\n", filepath);
+        return 0;
+    }
+
+    int fsize = fstat->st_size;
+    printf("\tFile %s processed. Total size = %dB\n", filepath, fsize);
+
+    free(fstat);
+
+    return fsize;
 }
 
 int isNotNavi(char * name) {

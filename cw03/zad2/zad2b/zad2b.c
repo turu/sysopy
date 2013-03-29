@@ -87,5 +87,7 @@ int main(int argc, char ** argv) {
         printf("Could not scan entire file tree!\n");
     }
 
+    free(tm);
+
     return 0;
 }

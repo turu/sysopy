@@ -1,8 +1,5 @@
 #define _XOPEN_SOURCE
 #include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/param.h>
-#include <dirent.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -22,7 +19,7 @@ last modified date matches provided cryteria.\nUsage:\n-p <path to a directory>\
 
 int visitor(const char *file, const struct stat *sb, int flag) {
     if (flag == FTW_F) {
-        printf("Processing file %s %d\n", file, sb->st_mtime);
+        //printf("Processing file %s %d\n", file, sb->st_mtime);
         if ((compare == '<' && sb->st_mtime < argTime) ||
             (compare == '=' && sb->st_mtime == argTime) ||
             (compare == '>' && sb->st_mtime > argTime)) {
@@ -84,9 +81,6 @@ int main(int argc, char ** argv) {
     }
 
     argTime = mktime(tm);
-
-    printf("%c %d\n", compare, argTime);
-
     realpath(dirpath, abspath);
 
     if (ftw(abspath, visitor, 10) != 0) {

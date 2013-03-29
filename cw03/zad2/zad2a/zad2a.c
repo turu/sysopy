@@ -72,6 +72,7 @@ int dirSize(char * dirpath) {
     }
 
     printf("Dir %s processed.\n", dirpath);
+    closedir(dir);
 
     return size;
 }

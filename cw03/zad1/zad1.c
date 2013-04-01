@@ -76,17 +76,26 @@ int generate(char * filePath, size_t structSize, int structCount) {
 }
 
 int sort(char * filePath) {
+    size_t structSize;
+    int structCount;
+
     #ifndef SYSTEM
     FILE * file = fopen(filePath, "r+b");
     if (file == NULL) {
         return -1;
     }
+    fread(&structSize, sizeof(size_t), 1, file);
+    fread(&structCount, sizeof(int), 1, file);
     #else
     int file = open(filePath, O_RDWR);
     if (file == -1) {
         return -1;
     }
+    read(file, &structSize, sizeof(size_t));
+    read(file, &structCount, sizeof(int));
     #endif
+
+
 
     #ifdef SYSTEM
     close(file);

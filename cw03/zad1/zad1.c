@@ -16,7 +16,10 @@ typedef struct {
 } MyStruct;
 
 void randomBytes(char * data, size_t size) {
-
+    while (size--) {
+        *data = (char) rand();
+        data++;
+    }
 }
 
 int generate(char * filePath, size_t structSize, int structCount) {
@@ -26,7 +29,7 @@ int generate(char * filePath, size_t structSize, int structCount) {
     }
 
     #ifndef SYSTEM
-    FILE * file = fopen(filePath, "wb+");
+    FILE * file = fopen(filePath, "w+b");
     if (file == NULL) {
         return -1;
     }
@@ -62,8 +65,10 @@ int generate(char * filePath, size_t structSize, int structCount) {
     free(myStruct);
 
     #ifdef SYSTEM
+    fsync(file);
     close(file);
     #else
+    fflush(file);
     fclose(file);
     #endif
 
@@ -72,7 +77,7 @@ int generate(char * filePath, size_t structSize, int structCount) {
 
 int sort(char * filePath) {
     #ifndef SYSTEM
-    FILE * file = fopen(filePath, "rb+");
+    FILE * file = fopen(filePath, "r+b");
     if (file == NULL) {
         return -1;
     }
@@ -93,38 +98,48 @@ int sort(char * filePath) {
 }
 
 int generuj (int argc, char ** argv) {
-    if (argc < 4) {
+    if (argc < 5) {
+        printf("Za malo argumentow!!!\n");
         return -1;
     }
 
-    size_t structSize = atoi(argv[1]);
-    int structCount = atoi(argv[2]);
-    char * filePath = argv[3];
+    size_t structSize = atoi(argv[2]);
+    int structCount = atoi(argv[3]);
+    char * filePath = argv[4];
 
-    generate(filePath, structSize, structCount);
+    if (generate(filePath, structSize, structCount) == -1) {
+        printf("Generacja nie powiodla sie\n");
+        return -1;
+    }
 
     return 0;
 }
 
 int sortuj (int argc, char ** argv) {
-    if (argc < 2) {
+    if (argc < 3) {
         return -1;
     }
 
-    char * filePath = argv[1];
-    sort(filePath);
+    char * filePath = argv[2];
+
+    if(sort(filePath) == -1) {
+        printf("Sortowanie nie powiodlo sie\n");
+        return -1;
+    }
 
     return 0;
 }
 
 int main(int argc, char ** argv) {
-    if (argc < 1) {
+    if (argc < 2) {
         printf("Za malo argumentow!\n");
         return -1;
     }
 
-    char * modeString = argv[0];
+    char * modeString = argv[1];
+    printf("%s\n", modeString);
     if (!strcmp(modeString, "generuj")) {
+        printf("Entering generacja\n");
         return generuj(argc, argv);
     } else if (!strcmp(modeString, "sortuj")) {
         return sortuj(argc, argv);

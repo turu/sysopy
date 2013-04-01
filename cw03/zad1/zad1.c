@@ -50,9 +50,11 @@ int generate(char * filePath, size_t structSize, int structCount) {
         myStruct->key = rand();
         randomBytes(myStruct->data, structSize);
         #ifdef SYSTEM
-        write(file, &myStruct, sizeof(*myStruct));
+        write(file, &myStruct->key, sizeof(int));
+        write(file, &myStruct->data, structSize);
         #else
-        fwrite(&myStruct, sizeof(*myStruct), 1, file);
+        fwrite(&myStruct->key, sizeof(int), 1, file);
+        fwrite(&myStruct->data, structSize, 1, file);
         #endif
     }
 

@@ -53,11 +53,11 @@ int generate(char * filePath, size_t structSize, int structCount) {
         myStruct->key = rand();
         randomBytes(myStruct->data, structSize);
         #ifdef SYSTEM
-        write(file, &myStruct->key, sizeof(int));
-        write(file, &myStruct->data, structSize);
+        write(file, &(myStruct->key), sizeof(int));
+        write(file, myStruct->data, structSize);
         #else
-        fwrite(&myStruct->key, sizeof(int), 1, file);
-        fwrite(&myStruct->data, structSize, 1, file);
+        fwrite(&(myStruct->key), sizeof(int), 1, file);
+        fwrite(myStruct->data, structSize, 1, file);
         #endif
     }
 
@@ -73,6 +73,80 @@ int generate(char * filePath, size_t structSize, int structCount) {
     #endif
 
     return 0;
+}
+
+int headerSize = sizeof(size_t) + sizeof(int);
+
+#ifdef SYSTEM
+int process(int i, int file, size_t structSize, MyStruct * lhs, MyStruct * rhs) {
+    long offset = i * structSize + headerSize;
+    lseek(file, offset, SEEK_SET);
+    structSize -= sizeof(int);
+    read(file, &(lhs->key), sizeof(int));
+    read(file, lhs->data, structSize);
+    read(file, &(rhs->key), sizeof(int));
+    read(file, rhs->data, structSize);
+
+    if (lhs->key > rhs->key) {
+        printf("Swapping %d and %d\n", lhs->key, rhs->key);
+        lseek(file, offset, SEEK_SET);
+        write(file, &(rhs->key), sizeof(int));
+        write(file, rhs->data, structSize);
+        write(file, &(lhs->key), sizeof(int));
+        write(file, lhs->data, structSize);
+        return 1;
+    }
+
+    return 0;
+}
+#else
+int process(int i, FILE * file, size_t structSize, MyStruct * lhs, MyStruct * rhs) {
+    long offset = i * structSize + headerSize;
+    fseek(file, offset, SEEK_SET);
+    structSize -= sizeof(int);
+    fread(&(lhs->key), sizeof(int), 1, file);
+    fread(lhs->data, structSize, 1, file);
+    fread(&(rhs->key), sizeof(int), 1, file);
+    fread(rhs->data, structSize, 1, file);
+
+    if (lhs->key > rhs->key) {
+        printf("Swapping %d and %d\n", lhs->key, rhs->key);
+        fseek(file, offset, SEEK_SET);
+        fwrite(&(rhs->key), sizeof(int), 1, file);
+        fwrite(rhs->data, structSize, 1, file);
+        fwrite(&(lhs->key), sizeof(int), 1, file);
+        fwrite(lhs->data, structSize, 1, file);
+        return 1;
+    }
+
+    return 0;
+}
+#endif
+
+#ifdef SYSTEM
+void anastazja_babelkowa(int file, size_t structSize, int structCount) {
+#else
+void anastazja_babelkowa(FILE * file, size_t structSize, int structCount) {
+#endif
+    int i;
+    char swapped;
+    MyStruct * lhs = (MyStruct*) malloc(sizeof(MyStruct));
+    lhs->data = (char*) malloc(sizeof(structSize));
+    MyStruct * rhs = (MyStruct*) malloc(sizeof(MyStruct));
+    rhs->data = (char*) malloc(sizeof(structSize));
+
+    do {
+        swapped = 0;
+        for (i = 1; i < structCount; i++) {
+            if (process(i-1, file, structSize, lhs, rhs))
+                swapped = 1;
+        }
+    } while (swapped);
+
+    free(lhs->data);
+    free(lhs);
+    free(rhs->data);
+    free(rhs);
 }
 
 int sort(char * filePath) {
@@ -95,11 +169,13 @@ int sort(char * filePath) {
     read(file, &structCount, sizeof(int));
     #endif
 
-
+    anastazja_babelkowa(file, structSize, structCount);
 
     #ifdef SYSTEM
+    fsync(file);
     close(file);
     #else
+    fflush(file);
     fclose(file);
     #endif
 

@@ -160,8 +160,7 @@ int main(int argc, char** argv){
         if (!strcmp(cmd, "help")) {
             printHelp();
         } else if(!strcmp(cmd, "lock")) {
-            scanf("%d", &id);
-            scanf("%s", type);
+            scanf("%d %s", &id, type);
             if (!strcmp(type, "READ")) setLock(fd, id, F_RDLCK);
             else if (!strcmp(type, "WRITE")) setLock(fd, id, F_WRLCK);
             else if (!strcmp(type, "UNLOCK")) setLock(fd, id, F_UNLCK);
@@ -172,9 +171,7 @@ int main(int argc, char** argv){
             scanf("%d", &id);
             readChar(fd, id);
         } else if (!strcmp(cmd, "write")) {
-            scanf("%d", &id);
-            scanf("%c", &c);
-            scanf("%c", &c);
+            scanf("%d %c", &id, &c);
             writeChar(fd, id, c);
         } else if (strcmp(cmd, "exit")) {
             printf("Nieprawidlowe polecenie. Wpisz help, aby uzyskac pomoc.\n");

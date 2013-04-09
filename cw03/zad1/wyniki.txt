@@ -5,131 +5,118 @@
     korzystając z funkcji z rodziny _unlocked (fread_unlocked, fwrite_unlocked).
 */
 
-1. WYNIKI UZYSKANE DLA 1200 struktur do posortowania:
-a) rozmiar struktury dane: 0
+1. 1500 struktur:
+a) rozmiar struktury = 0
 
-Sortowanie wykorzystujace funkcje systemowe we-wy 
-Pomiar czasu
-rzeczywisty: 6.494034[s]
-uzytkownika: 0.220000[s]
-systemowy: 6.110000[s]
+	Funkcje systemowe:
+	Czasy wykonania:
+	rzeczywisty: 4.029920[s]
+	uzytkownika: 0.292000[s]
+	systemowy: 3.633000[s]
 
-Sortowanie wykorzystujace funkcje we-wy biblioteki standardowej C
-Pomiar czasu
-rzeczywisty: 4.961292[s]
-uzytkownika: 0.120000[s]
-systemowy: 4.730000[s]
+	Funkcje biblioteki C:
+	Czasy wykonania:
+	rzeczywisty: 1.485977[s]
+	uzytkownika: 0.366000[s]
+	systemowy: 1.117000[s]
 
+b) rozmiar struktury = 512
 
+	Funkcje systemowe:
+	Czasy wykonania:
+	rzeczywisty: 5.735223[s]
+	uzytkownika: 0.301000[s]
+	systemowy: 5.314000[s]
 
-b) rozmiar struktury dane: 512
+	Funkcje biblioteki C:
+	Czasy wykonania:
+	rzeczywisty: 2.293669[s]
+	uzytkownika: 0.667000[s]
+	systemowy: 1.620000[s]
 
-Sortowanie wykorzystujace funkcje systemowe we-wy 
-Pomiar czasu
-rzeczywisty: 10.413368[s]
-uzytkownika: 0.020000[s]
-systemowy: 10.150000[s]
+c) rozmiar struktury = 4096
 
-Sortowanie wykorzystujace funkcje we-wy biblioteki standardowej C
-Pomiar czasu
-rzeczywisty: 6.111847[s]
-uzytkownika: 0.200000[s]
-systemowy: 5.760000[s]
+	Funkcje systemowe:
+	Czasy wykonania:
+	rzeczywisty: 7.635259[s]
+	uzytkownika: 0.288000[s]
+	systemowy: 7.122000[s]
 
+	Funkcje biblioteki C:
+	Czasy wykonania:
+	rzeczywisty: 7.547022[s]
+	uzytkownika: 1.879000[s]
+	systemowy: 5.546000[s]
 
+d) rozmiar struktury = 8192
 
-c) rozmiar struktury dane: 4096
+	Funkcje systemowe:
+	Czasy wykonania:
+	rzeczywisty: 10.428213[s]
+	uzytkownika: 0.330000[s]
+	systemowy: 9.530000[s]
 
-Sortowanie wykorzystujace funkcje systemowe we-wy
-Pomiar czasu
-rzeczywisty: 13.640085[s]
-uzytkownika: 0.220000[s]
-systemowy: 13.080000[s]
-
-Sortowanie wykorzystujace funkcje we-wy biblioteki standardowej C
-Pomiar czasu
-rzeczywisty: 13.850572[s]
-uzytkownika: 0.150000[s]
-systemowy: 13.430000[s]
-
-
-
-d) rozmiar struktury dane: 8192
-
-Sortowanie wykorzystujace funkcje systemowe we-wy
-Pomiar czasu
-rzeczywisty: 17.256395[s]
-uzytkownika: 0.190000[s]
-systemowy: 16.630000[s]
-
-Sortowanie wykorzystujace funkcje we-wy biblioteki standardowej C
-Pomiar czasu
-rzeczywisty: 21.393047[s]
-uzytkownika: 0.420000[s]
-systemowy: 20.230000[s]
+	Funkcje biblioteki C:
+	Czasy wykonania:
+	rzeczywisty: 11.895365[s]
+	uzytkownika: 2.063000[s]
+	systemowy: 9.772000[s]
 
 
+2. 3000 struktur:
+a) rozmiar struktury = 0
+
+	Funkcje systemowe:
+	Czasy wykonania:
+	rzeczywisty: 15.983237[s]
+	uzytkownika: 1.238000[s]
+	systemowy: 14.615000[s]
+
+	Funkcje biblioteki C:
+	Czasy wykonania:
+	rzeczywisty: 15.693025[s]
+	uzytkownika: 1.222000[s]
+	systemowy: 14.340000[s]
 
 
-2. WYNIKI UZYSKANE DLA 1600 struktur do posortowania:
-a) rozmiar struktury dane: 0
-Sortowanie wykorzystujace funkcje systemowe we-wy 
-Pomiar czasu
-rzeczywisty: 11.145442[s]
-uzytkownika: 0.040000[s]
-systemowy: 10.890000[s]
+b) rozmiar struktury = 512
 
-Sortowanie wykorzystujace funkcje we-wy biblioteki standardowej C
-Pomiar czasu
-rzeczywisty: 8.515210[s]
-uzytkownika: 0.330000[s]
-systemowy: 7.850000[s]
+	Funkcje systemowe:
+	Czasy wykonania:
+	rzeczywisty: 22.890654[s]
+	uzytkownika: 1.288000[s]
+	systemowy: 21.432000[s]
 
+	Funkcje biblioteki C:
+	Czasy wykonania:
+	rzeczywisty: 22.821586[s]
+	uzytkownika: 1.295000[s]
+	systemowy: 21.219000[s]
 
+c) rozmiar struktury = 4096
 
-b) rozmiar struktury dane: 512
+	Funkcje systemowe:
+	Czasy wykonania:
+	rzeczywisty: 29.620117[s]
+	uzytkownika: 1.246000[s]
+	systemowy: 28.029000[s]
 
-Sortowanie wykorzystujace funkcje systemowe we-wy 
-Pomiar czasu
-rzeczywisty: 18.266873[s]
-uzytkownika: 0.260000[s]
-systemowy: 17.660000[s]
+	Funkcje biblioteki C:
+	Czasy wykonania:
+	rzeczywisty: 29.227000[s]
+	uzytkownika: 7.065000[s]
+	systemowy: 21.826000[s]
 
-Sortowanie wykorzystujace funkcje we-wy biblioteki standardowej C
-Pomiar czasu
-rzeczywisty: 11.420556[s]
-uzytkownika: 0.310000[s]
-systemowy: 10.870000[s]
+d) rozmiar struktury = 8192
 
+	Funkcje systemowe:
+	Czasy wykonania:
+	rzeczywisty: 47.580787[s]
+	uzytkownika: 8.108000[s]
+	systemowy: 38.948000[s]
 
-
-c) rozmiar struktury dane: 4096
-
-Sortowanie wykorzystujace funkcje systemowe we-wy
-Pomiar czasu
-rzeczywisty: 25.012668[s]
-uzytkownika: 0.180000[s]
-systemowy: 24.060000[s]
-
-Sortowanie wykorzystujace funkcje we-wy biblioteki standardowej C
-Pomiar czasu
-rzeczywisty: 26.108726[s]
-uzytkownika: 0.830000[s]
-systemowy: 24.330000[s]
-
-
-
-d) rozmiar struktury dane: 8192
-
-Sortowanie wykorzystujace funkcje systemowe we-wy
-Pomiar czasu
-rzeczywisty: 31.252152[s]
-uzytkownika: 0.420000[s]
-systemowy: 29.740000[s]
-
-Sortowanie wykorzystujace funkcje we-wy biblioteki standardowej C
-Pomiar czasu
-rzeczywisty: 38.015037[s]
-uzytkownika: 0.830000[s]
-systemowy: 35.330000[s]
-
+	Funkcje biblioteki C:
+	Czasy wykonania:
+	rzeczywisty: 47.275084[s]
+	uzytkownika: 8.087000[s]
+	systemowy: 38.705000[s]

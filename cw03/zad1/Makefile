@@ -5,6 +5,10 @@ SOURCES = zad1.c
 OBJ =  $(SOURCES:.c=.o)
 .PHONY = clean all zad1
 
+ifdef SYSTEM
+	CFLAGS += -D SYSTEM
+endif
+
 all: zad1
 
 zad1: $(OBJ)

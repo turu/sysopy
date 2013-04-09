@@ -35,7 +35,7 @@ void printStats(int i, struct rusage* r2, struct rusage* r1, struct timeval* t2,
 
 	if (i!=1) {
 		printf("Odniesienie do punktu kontrolnego %d\n",i-1);
-		printf("Pomiar czasu\n");
+		printf("Czasy wykonania:\n");
         printf("rzeczywisty: %lf[s]\n", (double)(t2->tv_sec*1000000 + t2->tv_usec - t1->tv_sec*1000000 - t1->tv_usec)/1000000);
         printf("uzytkownika: %lf[s]\n", (double)(r2->ru_utime.tv_sec*1000000 + r2->ru_utime.tv_usec - r1->ru_utime.tv_sec*1000000 -
 				r1->ru_utime.tv_usec) / 1000000);
@@ -59,7 +59,7 @@ int generate(char * filePath, size_t structSize, int structCount) {
     fwrite(&structSize, sizeof(size_t), 1, file);
     fwrite(&structCount, sizeof(int), 1, file);
     #else
-    int file = open(filePath, O_CREAT | O_WRONLY);
+    int file = open(filePath, O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
     if (file == -1) {
         return -1;
     }

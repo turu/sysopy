@@ -14,7 +14,7 @@ char compare = 0;
 void printHelp() {
     printf("Program displays absolute paths to files from a given directory, which \
 last modified date matches provided cryteria.\nUsage:\n-p <path to a directory>\n\
--c >|=|<\n-d YYYY-MM-DD_hh:mm:ss\n");
+-c '>|=|<'\n-d YYYY-MM-DD_hh:mm:ss\n");
 }
 
 int visitor(const char *file, const struct stat *sb, int flag) {

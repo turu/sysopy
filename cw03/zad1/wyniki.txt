@@ -1,0 +1,135 @@
+/**
+    Komentarz: Obserwując pomiary czasu dla poszczególnych wielkości struktur oraz ich liczby można zauważyć, że funkcje
+    biblioteki standardowej sa wydajniejsze od funkcji systemowych. Różnica ta uwidacznia się jeszcze bardziej przy większych
+    ilościach danych. Jako ciekawostkę (użyteczną) można dodać, że jeszcze wydajniejszą obsługę wejścia/wyjścia, można uzyskać
+    korzystając z funkcji z rodziny _unlocked (fread_unlocked, fwrite_unlocked).
+*/
+
+1. WYNIKI UZYSKANE DLA 1200 struktur do posortowania:
+a) rozmiar struktury dane: 0
+
+Sortowanie wykorzystujace funkcje systemowe we-wy 
+Pomiar czasu
+rzeczywisty: 6.494034[s]
+uzytkownika: 0.220000[s]
+systemowy: 6.110000[s]
+
+Sortowanie wykorzystujace funkcje we-wy biblioteki standardowej C
+Pomiar czasu
+rzeczywisty: 4.961292[s]
+uzytkownika: 0.120000[s]
+systemowy: 4.730000[s]
+
+
+
+b) rozmiar struktury dane: 512
+
+Sortowanie wykorzystujace funkcje systemowe we-wy 
+Pomiar czasu
+rzeczywisty: 10.413368[s]
+uzytkownika: 0.020000[s]
+systemowy: 10.150000[s]
+
+Sortowanie wykorzystujace funkcje we-wy biblioteki standardowej C
+Pomiar czasu
+rzeczywisty: 6.111847[s]
+uzytkownika: 0.200000[s]
+systemowy: 5.760000[s]
+
+
+
+c) rozmiar struktury dane: 4096
+
+Sortowanie wykorzystujace funkcje systemowe we-wy
+Pomiar czasu
+rzeczywisty: 13.640085[s]
+uzytkownika: 0.220000[s]
+systemowy: 13.080000[s]
+
+Sortowanie wykorzystujace funkcje we-wy biblioteki standardowej C
+Pomiar czasu
+rzeczywisty: 13.850572[s]
+uzytkownika: 0.150000[s]
+systemowy: 13.430000[s]
+
+
+
+d) rozmiar struktury dane: 8192
+
+Sortowanie wykorzystujace funkcje systemowe we-wy
+Pomiar czasu
+rzeczywisty: 17.256395[s]
+uzytkownika: 0.190000[s]
+systemowy: 16.630000[s]
+
+Sortowanie wykorzystujace funkcje we-wy biblioteki standardowej C
+Pomiar czasu
+rzeczywisty: 21.393047[s]
+uzytkownika: 0.420000[s]
+systemowy: 20.230000[s]
+
+
+
+
+2. WYNIKI UZYSKANE DLA 1600 struktur do posortowania:
+a) rozmiar struktury dane: 0
+Sortowanie wykorzystujace funkcje systemowe we-wy 
+Pomiar czasu
+rzeczywisty: 11.145442[s]
+uzytkownika: 0.040000[s]
+systemowy: 10.890000[s]
+
+Sortowanie wykorzystujace funkcje we-wy biblioteki standardowej C
+Pomiar czasu
+rzeczywisty: 8.515210[s]
+uzytkownika: 0.330000[s]
+systemowy: 7.850000[s]
+
+
+
+b) rozmiar struktury dane: 512
+
+Sortowanie wykorzystujace funkcje systemowe we-wy 
+Pomiar czasu
+rzeczywisty: 18.266873[s]
+uzytkownika: 0.260000[s]
+systemowy: 17.660000[s]
+
+Sortowanie wykorzystujace funkcje we-wy biblioteki standardowej C
+Pomiar czasu
+rzeczywisty: 11.420556[s]
+uzytkownika: 0.310000[s]
+systemowy: 10.870000[s]
+
+
+
+c) rozmiar struktury dane: 4096
+
+Sortowanie wykorzystujace funkcje systemowe we-wy
+Pomiar czasu
+rzeczywisty: 25.012668[s]
+uzytkownika: 0.180000[s]
+systemowy: 24.060000[s]
+
+Sortowanie wykorzystujace funkcje we-wy biblioteki standardowej C
+Pomiar czasu
+rzeczywisty: 26.108726[s]
+uzytkownika: 0.830000[s]
+systemowy: 24.330000[s]
+
+
+
+d) rozmiar struktury dane: 8192
+
+Sortowanie wykorzystujace funkcje systemowe we-wy
+Pomiar czasu
+rzeczywisty: 31.252152[s]
+uzytkownika: 0.420000[s]
+systemowy: 29.740000[s]
+
+Sortowanie wykorzystujace funkcje we-wy biblioteki standardowej C
+Pomiar czasu
+rzeczywisty: 38.015037[s]
+uzytkownika: 0.830000[s]
+systemowy: 35.330000[s]
+

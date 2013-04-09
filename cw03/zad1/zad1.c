@@ -3,6 +3,9 @@
 #include <string.h>
 #include <math.h>
 #include <time.h>
+#include<unistd.h>
+#include<sys/time.h>
+#include<sys/resource.h>
 
 #ifdef SYSTEM
 #include <sys/types.h>
@@ -20,6 +23,26 @@ void randomBytes(char * data, size_t size) {
         *data = (char) rand();
         data++;
     }
+}
+
+void printStats(int i, struct rusage* r2, struct rusage* r1, struct timeval* t2, struct timeval* t1) {
+	printf("Punkt kontrolny %d\n",i);
+	printf("Aktualne dane.\nPomiar czasu\n");
+	printf("rzeczywisty: %ld[s] %ld[us]\n",(long int)t2->tv_sec,(long int)t2->tv_usec);
+	printf("uzytkownika: %ld[s] %ld[us]\n",(long int)r2->ru_utime.tv_sec,(long int)r2->ru_utime.tv_usec);
+	printf("systemowy: %ld[s] %ld[us]\n",(long int)r2->ru_stime.tv_sec,(long int)r2->ru_stime.tv_usec);
+	printf("\n\n");
+
+	if (i!=1) {
+		printf("Odniesienie do punktu kontrolnego %d\n",i-1);
+		printf("Pomiar czasu\n");
+        printf("rzeczywisty: %lf[s]\n", (double)(t2->tv_sec*1000000 + t2->tv_usec - t1->tv_sec*1000000 - t1->tv_usec)/1000000);
+        printf("uzytkownika: %lf[s]\n", (double)(r2->ru_utime.tv_sec*1000000 + r2->ru_utime.tv_usec - r1->ru_utime.tv_sec*1000000 -
+				r1->ru_utime.tv_usec) / 1000000);
+        printf("systemowy: %lf[s]\n", (double)(r2->ru_stime.tv_sec*1000000 + r2->ru_stime.tv_usec - r1->ru_stime.tv_sec*1000000 -
+                r1->ru_stime.tv_usec) / 1000000);
+		printf("\n\n");
+	}
 }
 
 int generate(char * filePath, size_t structSize, int structCount) {
@@ -88,7 +111,7 @@ int process(int i, int file, size_t structSize, MyStruct * lhs, MyStruct * rhs) 
     read(file, rhs->data, structSize);
 
     if (lhs->key > rhs->key) {
-        printf("Swapping %d and %d\n", lhs->key, rhs->key);
+        //printf("Swapping %d and %d\n", lhs->key, rhs->key);
         lseek(file, offset, SEEK_SET);
         write(file, &(rhs->key), sizeof(int));
         write(file, rhs->data, structSize);
@@ -110,7 +133,7 @@ int process(int i, FILE * file, size_t structSize, MyStruct * lhs, MyStruct * rh
     fread(rhs->data, structSize, 1, file);
 
     if (lhs->key > rhs->key) {
-        printf("Swapping %d and %d\n", lhs->key, rhs->key);
+        //printf("Swapping %d and %d\n", lhs->key, rhs->key);
         fseek(file, offset, SEEK_SET);
         fwrite(&(rhs->key), sizeof(int), 1, file);
         fwrite(rhs->data, structSize, 1, file);
@@ -221,14 +244,24 @@ int main(int argc, char ** argv) {
         return -1;
     }
 
+    struct rusage p1r, p2r;
+    struct timeval p1t, p2t;
+
+    gettimeofday(&p1t, NULL);
+    getrusage(RUSAGE_SELF, &p1r);
+    printStats(1, &p1r, NULL, &p1t, NULL);
+
     char * modeString = argv[1];
     printf("%s\n", modeString);
     if (!strcmp(modeString, "generuj")) {
-        printf("Entering generacja\n");
         return generuj(argc, argv);
     } else if (!strcmp(modeString, "sortuj")) {
         return sortuj(argc, argv);
     }
+
+    gettimeofday(&p2t, NULL);
+    getrusage(RUSAGE_SELF, &p2r);
+    printStats(2, &p2r, &p1r, &p2t, &p1t);
 
     return -1;
 }

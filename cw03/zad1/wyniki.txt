@@ -1,8 +1,8 @@
 /**
     Komentarz: Obserwując pomiary czasu dla poszczególnych wielkości struktur oraz ich liczby można zauważyć, że funkcje
-    biblioteki standardowej sa wydajniejsze od funkcji systemowych. Różnica ta uwidacznia się jeszcze bardziej przy większych
-    ilościach danych. Jako ciekawostkę (użyteczną) można dodać, że jeszcze wydajniejszą obsługę wejścia/wyjścia, można uzyskać
-    korzystając z funkcji z rodziny _unlocked (fread_unlocked, fwrite_unlocked).
+    biblioteki standardowej sa wydajniejsze od funkcji systemowych. Co prawda funkcje biblioteczne używaja wiecej czasu
+    systemowego, ale w ostatecznym rozrachunku są szybsze. Jako ciekawostkę (użyteczną) można dodać, że jeszcze 
+    wydajniejszą obsługę wejścia/wyjścia, można uzyskać korzystając z funkcji z rodziny _unlocked (fread_unlocked, fwrite_unlocked).
 */
 
 1. 1500 struktur:

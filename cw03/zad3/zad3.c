@@ -10,7 +10,7 @@ void printHelp() {
     printf("Argumenty: nazwa_pliku\n");
     printf("Polecenia w programie:\n\tlock offset_w_pliku READ|WRITE|UNLOCK - zaklada/zdejmuje rygiel z zadanego znaku w pliku\n\tlist - listuje aktywne rygle\n");
     printf("\tread offset_w_pliku - o ile jest to mozliwe, odczytuje zadany znak z pliku.\n");
-    printf("\twrite offset_w_pliku - o ile jest to możliwe, zapisuje zadan.\n");
+    printf("\twrite offset_w_pliku znak - o ile jest to możliwe, zapisuje zadany znak na zadanej pozycji.\n");
     printf("\texit - wyjscie\n");
 }
 
@@ -25,7 +25,6 @@ int setLock(int fd, int id, int flag) {
     fl->l_whence = SEEK_SET;
     fl->l_start = id;
     fl->l_len = 1;
-    locks[id] = flag;
 
     if (fcntl(fd, F_SETLK, fl) == -1) {
         printf("Nie udalo sie utworzyc rygla na zadanym znaku!\n");
@@ -40,6 +39,8 @@ int setLock(int fd, int id, int flag) {
         if (flag == F_WRLCK) printf("Rygiel do zapisu\n");
         else printf("Rygiel do odczytu\n");
     }
+
+    locks[id] = flag;
 
     free(fl);
     return 0;
@@ -177,6 +178,8 @@ int main(int argc, char** argv){
             printf("Nieprawidlowe polecenie. Wpisz help, aby uzyskac pomoc.\n");
         }
     }
+
+    free(locks);
 
     close(fd);
     return 0;

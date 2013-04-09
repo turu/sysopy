@@ -47,7 +47,7 @@ void printStats(int i, struct rusage* r2, struct rusage* r1, struct timeval* t2,
 
 int generate(char * filePath, size_t structSize, int structCount) {
     srand(time(NULL));
-    if (structSize <= sizeof(int) || structCount <= 0) {
+    if (structSize < 0 || structCount <= 0) {
         return -1;
     }
 
@@ -67,7 +67,6 @@ int generate(char * filePath, size_t structSize, int structCount) {
     write(file, &structCount, sizeof(int));
     #endif
 
-    structSize -= sizeof(int);
     MyStruct * myStruct = (MyStruct *) malloc(sizeof(MyStruct));
     myStruct->data = (char*) malloc(structSize);
 
@@ -102,9 +101,8 @@ int headerSize = sizeof(size_t) + sizeof(int);
 
 #ifdef SYSTEM
 int process(int i, int file, size_t structSize, MyStruct * lhs, MyStruct * rhs) {
-    long offset = i * structSize + headerSize;
+    long offset = i * (structSize + sizeof(int)) + headerSize;
     lseek(file, offset, SEEK_SET);
-    structSize -= sizeof(int);
     read(file, &(lhs->key), sizeof(int));
     read(file, lhs->data, structSize);
     read(file, &(rhs->key), sizeof(int));
@@ -124,13 +122,14 @@ int process(int i, int file, size_t structSize, MyStruct * lhs, MyStruct * rhs) 
 }
 #else
 int process(int i, FILE * file, size_t structSize, MyStruct * lhs, MyStruct * rhs) {
-    long offset = i * structSize + headerSize;
+    long offset = i * (structSize + sizeof(int)) + headerSize;
     fseek(file, offset, SEEK_SET);
-    structSize -= sizeof(int);
     fread(&(lhs->key), sizeof(int), 1, file);
     fread(lhs->data, structSize, 1, file);
     fread(&(rhs->key), sizeof(int), 1, file);
     fread(rhs->data, structSize, 1, file);
+
+    //printf("%d %d\n", lhs->key, rhs->key);
 
     if (lhs->key > rhs->key) {
         //printf("Swapping %d and %d\n", lhs->key, rhs->key);
@@ -154,9 +153,9 @@ void anastazja_babelkowa(FILE * file, size_t structSize, int structCount) {
     int i;
     char swapped;
     MyStruct * lhs = (MyStruct*) malloc(sizeof(MyStruct));
-    lhs->data = (char*) malloc(sizeof(structSize));
+    lhs->data = (char*) malloc(structSize);
     MyStruct * rhs = (MyStruct*) malloc(sizeof(MyStruct));
-    rhs->data = (char*) malloc(sizeof(structSize));
+    rhs->data = (char*) malloc(structSize);
 
     do {
         swapped = 0;
@@ -191,6 +190,8 @@ int sort(char * filePath) {
     read(file, &structSize, sizeof(size_t));
     read(file, &structCount, sizeof(int));
     #endif
+
+    //printf("%d %d\n", structSize, structCount);
 
     anastazja_babelkowa(file, structSize, structCount);
 
@@ -252,16 +253,15 @@ int main(int argc, char ** argv) {
     printStats(1, &p1r, NULL, &p1t, NULL);
 
     char * modeString = argv[1];
-    printf("%s\n", modeString);
     if (!strcmp(modeString, "generuj")) {
-        return generuj(argc, argv);
+        generuj(argc, argv);
     } else if (!strcmp(modeString, "sortuj")) {
-        return sortuj(argc, argv);
-    }
+        sortuj(argc, argv);
+    } else return -1;
 
     gettimeofday(&p2t, NULL);
     getrusage(RUSAGE_SELF, &p2r);
     printStats(2, &p2r, &p1r, &p2t, &p1t);
 
-    return -1;
+    return 0;
 }

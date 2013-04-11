@@ -1,6 +1,6 @@
 CC = gcc
 SHELL = /bin/bash
-CFLAGS = -Wall -lrt -O2 -lm
+CFLAGS = -Wall
 SOURCES = zad1.c
 OBJ =  $(SOURCES:.c=.o)
 .PHONY = clean all zad1

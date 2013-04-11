@@ -81,14 +81,14 @@ int main(int argc, char **argv) {
     printf("Counter = %d\n\n", counter);
 
     printf("Parent times:\n");
-	printf("real: %lf[s]\n", parentTime / clk);
-	printf("user: %lf[s]\n", tt.tms_utime / clk);
-	printf("sys:  %lf[s]\n", tt.tms_stime / clk);
+	printf("real: %lf[s]\n", (double)parentTime / clk);
+	printf("user: %lf[s]\n", (double)tt.tms_utime / clk);
+	printf("sys:  %lf[s]\n", (double)tt.tms_stime / clk);
 
 	printf("\nChildren times:\n");
-	printf("real: %lf[s]\n", childTime / clk);
-	printf("user: %lf[s]\n", tt.tms_cutime / clk);
-	printf("sys:  %lf[s]\n", tt.tms_cstime / clk);
+	printf("real: %lf[s]\n", (double)childTime / clk);
+	printf("user: %lf[s]\n", (double)tt.tms_cutime / clk);
+	printf("sys:  %lf[s]\n", (double)tt.tms_cstime / clk);
 
     return 0;
 }

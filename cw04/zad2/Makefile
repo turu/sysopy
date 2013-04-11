@@ -1,16 +1,16 @@
 CC = gcc
 SHELL = /bin/bash
-CFLAGS = -Wall -lrt -O2 -lm
-SOURCES = zad2.c
-OBJ =  $(SOURCES:.c=.o)
-.PHONY = clean all zad2
+CFLAGS = -Wall -lrt -O2
+.PHONY = clean all archiwizuj dopisz
 
-all: zad2
+all: archiwizuj dopisz
 
-zad2: $(OBJ)
-	$(CC) $(CFLAGS)  $^ -o $@.out	
+archiwizuj: archiwizuj.o
+	$(CC) $(CFLAGS)  $^ -o $@.out
+
+dopisz: dopisz.o
+	$(CC) $(CFLAGS) $^ -o $@.out
 
 clean:
-	rm -r archiwum
 	rm -f *.out
 	rm -f *.o

@@ -13,7 +13,7 @@
 
 #define STACK_SIZE 1000
 
-int childPID, counter, N;
+int childPID, counter, N, NK;
 long childTime, parentTime;
 
 int fn(void * ptr) {
@@ -42,6 +42,7 @@ int main(int argc, char **argv) {
     }
 
     N = atoi(argv[1]);
+    NK = N;
 
     if (N < 0) {
         printf("y u no give correct number?\n");
@@ -89,6 +90,17 @@ int main(int argc, char **argv) {
 	printf("real: %lf[s]\n", (double)childTime / clk);
 	printf("user: %lf[s]\n", (double)tt.tms_cutime / clk);
 	printf("sys:  %lf[s]\n", (double)tt.tms_cstime / clk);
+
+	double rc = ((double)(childTime))/clk;
+    double uc = ((double)(tt.tms_cutime))/clk;
+    double sc = ((double)(tt.tms_cstime))/clk;
+    double rp = ((double)(parentTime))/clk;
+    double up = (double)(tt.tms_utime)/clk;
+    double sp = (double)(tt.tms_stime)/clk;
+    FILE* fd = fopen("vclone.tmp","a+");
+    fprintf(fd,"ChildCount\t%d\tRealTimeSum\t%.2f\tUserTimeSum\t%.2f\tSystemTimeSum\t%.2f\tSys+UsTimeSum\t%.2f\tRealTimeChild\t%.2f\tUserTimeChild\t%.2f\tSystemTimeChild\t%.2f\tSys+UsTimeCh\t%.2f\tRealTimeParent\t%.2f\tUserTimeParent\t%.2f\tSystemTimePar.\t%.2f\tSys+UsTimePar\t%.2f\n",
+        NK,rc+rp,uc+up,sc+sp,uc+up+sc+sp,rc,uc,sc,uc+sc,rp,up,sp,up+sp);
+    fclose(fd);
 
     return 0;
 }

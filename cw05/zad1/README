@@ -1,0 +1,4 @@
+W przypadku problemow z kompilacja/instalacja/konfiguracja, nalezy wykonac ./autogen.sh
+
+opcja configure:
+	--with-handler=sigaction

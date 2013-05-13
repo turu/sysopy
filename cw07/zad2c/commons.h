@@ -11,10 +11,6 @@ typedef struct message {
     char content[256];
 } message;
 
-typedef struct text {
-    char text[128];
-} text;
-
 mqd_t createQueue(char * name, size_t size){
     struct mq_attr attr;
 

@@ -12,18 +12,12 @@
 #include <mqueue.h>
 #include "commons.h"
 
-mqd_t replyQueue;
-char name[128];
-
-void closeQueue(char * name, mqd_t queue) {
-    mq_close(queue);
-	mq_unlink(name);
+void successHandler() {
+    printf("Message persisted.\n");
 }
 
-void cleanUp() {
-    closeQueue(name, replyQueue);
-
-    exit(0);
+void failureHandler() {
+    printf("Message not persisted.\n");
 }
 
 void randomChars(char * data, size_t size) {
@@ -56,12 +50,9 @@ int main(int argc, char * argv[]){
     message msg;
     msg.pid = getpid();
     sprintf(msg.name, "%s", argv[1]);
-    text reply;
 
-    sprintf(name, "/%s", argv[1]);
-    replyQueue = createQueue(name, sizeof(reply));
-
-    signal(SIGINT, cleanUp);
+    signal(SIGUSR1, successHandler);
+    signal(SIGUSR2, failureHandler);
 
     while (1) {
         sleep(1);
@@ -73,12 +64,6 @@ int main(int argc, char * argv[]){
             return 2;
         }
         printf("Message sent...\n");
-
-        do {
-            rc = mq_receive(replyQueue, (char*)(&reply), sizeof(reply), 0);
-        } while (rc < 1);
-
-        printf("Server's response: %s\n", reply.text);
     }
 
     return 0;

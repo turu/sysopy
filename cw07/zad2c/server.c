@@ -63,33 +63,22 @@ int main(int argc, char ** argv) {
     signal(SIGINT, cleanUp);
 
     int rec_Status;
-    char buff[128];
     message msg;
-    text reply;
 
     while (1) {
         sleep(1);
 
         rec_Status = mq_receive(serverQueue, (char*)(&msg), sizeof(msg), NULL);
         if (rec_Status != -1) {
-            sprintf(buff, "/%s", msg.name);
-            mqd_t send_id = createQueue(buff, sizeof(reply));
-
             printf("-----------------------------------\n");
             printf("Received message from pid = %d\n", msg.pid);
             printf("Name = %s\tContent = \n%s\n", msg.name, msg.content);
             if (save(&msg) == -1) {
                 printf("Message not persisted.\n");
-                sprintf(reply.text, "Could not save to file. Go to hell.");
+                kill(msg.pid, SIGUSR2);
             } else {
                 printf("Message persisted.\n");
-                sprintf(reply.text, "Message persisted correctly");
-            }
-
-            rec_Status = mq_send(send_id, (char*)(&reply), sizeof(reply), 0);
-
-            if (rec_Status == -1) {
-                printf("Reply could not be sent to %s.\n", msg.name);
+                kill(msg.pid, SIGUSR1);
             }
         }
     }

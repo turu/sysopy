@@ -13,95 +13,55 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <time.h>
+#include <math.h>
 
 #include "commons.h"
 
 int sem;
 int shm;
 void* mem;
-FILE* plik;
 
 void clean(int a) {
     shmdt(mem);
-	fclose(plik);
 }
 
-void suma(command e, int wynik[MAXMTX][MAXMTX]) {
-	int i, j;
-	for (i = 0; i < MAXMTX; i++) {
-		for(j = 0; j < MAXMTX; j++) {
-			wynik[i][j] = e.mat1[i][j] + e.mat2[i][j];
-		}
+double computeDet(int n, double M[MAXMTX][MAXMTX]) {
+    int i, j, i_count, j_count, count=0;
+	double array[n - 1][n - 1], det=0;
+
+	if (n < 1) {
+		puts("Error");
+		exit(1);
 	}
-}
+	if (n == 1) return M[0][0];
+	if (n == 2) return (M[0][0] * M[1][1] - M[0][1] * M[1][0]);
 
-void roznica(command e, int wynik[MAXMTX][MAXMTX]) {
-	int i, j;
-	for (i = 0; i < MAXMTX; i++) {
-		for (j = 0; j < MAXMTX; j++) {
-			wynik[i][j] = e.mat1[i][j] - e.mat2[i][j];
-		}
-	}
-}
-
-void iloczyn(command e, int wynik[MAXMTX][MAXMTX]) {
-	int i, j, k, d;
-	for (i = 0; i < MAXMTX; i++) {
-		for (j = 0; j < MAXMTX; j++) {
-			wynik[i][j] = 0;
-			for(k = 0; k < MAXMTX; k++) {
-				wynik[i][j] += e.mat1[i][k] * e.mat2[k][j];
+	for (count = 0; count < n; count++) {
+		i_count=0;
+		for (i = 1; i < n; i++) {
+			j_count=0;
+			for (j = 0; j < n; j++) {
+				if(j == count) continue;
+				array[i_count][j_count] = M[i][j];
+				j_count++;
 			}
+			i_count++;
 		}
+		det += pow(-1, count) * M[0][count] * computeDet(n - 1, array);
 	}
+
+	return det;
 }
 
-void wypiszmat(int wynik[MAXMTX][MAXMTX]) {
-	char buf[(MAXMTX*MAXMTX+MAXMTX+5)*sizeof(int)];
-	buf[0] = '\0';
+void process(command e) {
+	double det = computeDet(MAXMTX, e.mat);
 
-	int i, j;
-	for (i = 0; i < MAXMTX; ++i) {
-		for (j = 0; j < MAXMTX; ++j) {
-			sprintf(buf, "%s %i", buf, wynik[i][j]);
-		}
-		sprintf(buf, "%s%c", buf, '\n');
-	}
-	sprintf(buf, "%s%s", buf, "\n\0");
-	fwrite(buf, strlen(buf)*sizeof(char), 1, plik);
-}
+	printf("Zadanie otrzymalem, zadanie wykonalem. Wynik to %f.\n", det);
 
-void toWrite(command e, int wynik[MAXMTX][MAXMTX]) {
-	char tekst[30] = "Wykonalem ";
-
-	switch(e.oper) {
-		case SUMA:
-			suma(e, wynik);
-			sprintf(tekst, "%s%s", tekst, "sume");
-			break;
-		case ROZNICA:
-			roznica(e, wynik);
-			sprintf(tekst, "%s%s", tekst, "roznice");
-			break;
-		case ILOCZYN:
-			iloczyn(e, wynik);
-			sprintf(tekst, "%s%s", tekst, "iloczyn");
-			break;
-	}
-
-	printf("%s\n", tekst);
-	sprintf(tekst, "%s%c", tekst, '\n');
-
-	fwrite(tekst, strlen(tekst)*sizeof(char), 1, plik);
-
-	wypiszmat(e.mat1);
-	wypiszmat(e.mat2);
-	wypiszmat(wynik);
 }
 
 void konsumuj(int ur) {
     command e;
-	int mat3[MAXMTX][MAXMTX];
 
 	struct sembuf sb;
 	sb.sem_flg = 0;
@@ -125,7 +85,7 @@ void konsumuj(int ur) {
 		(*begin_k) = (licznik+1)%MAXTAB;
 
 		e = tab[licznik];
-		toWrite(e, mat3);
+		process(e);
 		sb.sem_op = ZWIEKSZ;
 		semop(sem, &sb, 1);
 		sb.sem_num = PRODUCENT;
@@ -143,8 +103,8 @@ int main(int argc, char ** argv) {
 	klucz = ftok(KPATH, KVAL);
 
 	if ((sem = semget(klucz, 3, IPC_CREAT | IPC_EXCL | S_IRWXU)) == -1) {
-			ur = 0;
-			sem = semget(klucz, 3, 0);
+        ur = 0;
+        sem = semget(klucz, 3, 0);
 	} else {
         semctl(sem, PRODUCENT, SETVAL, MAXTAB);
 		semctl(sem, KONSUMENT, SETVAL, 0);
@@ -160,9 +120,6 @@ int main(int argc, char ** argv) {
 	}
 
 	mem = shmat(shm, NULL, 0);
-	char buf[PATH_MAX];
-	sprintf(buf, "%s%i", "/tmp/prod", getpid());
-	plik = fopen(buf, "w+");
 	konsumuj(ur);
 	clean(0);
 

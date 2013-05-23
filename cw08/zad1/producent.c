@@ -54,12 +54,10 @@ void produkuj(int ur) {
 		licznik = *begin_p;
 		(*begin_p) = (licznik+1)%MAXTAB;
 
-		e.oper = rand()%3;
 		int i, j;
 		for (i = 0; i < MAXMTX; ++i) {
 			for (j = 0; j < MAXMTX; ++j) {
-				e.mat1[i][j] = rand()%10;
-				e.mat2[i][j] = rand()%10;
+				e.mat[i][j] = rand() % 10;
 			}
 		}
 

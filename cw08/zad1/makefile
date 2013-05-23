@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS = -Wall
+CFLAGS = -Wall -lm
 
 SRC1 = producent.c
 SRC2 = konsument.c

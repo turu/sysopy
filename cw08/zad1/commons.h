@@ -4,9 +4,6 @@
 #define KPATH "/tmp/serv"
 #define KVAL 66
 
-#define SUMA 0
-#define ROZNICA 1
-#define ILOCZYN 2
 #define MAXMTX 5
 #define MAXTAB 10
 #define PRODUCENT 0
@@ -16,9 +13,7 @@
 #define ZMNIEJSZ -1
 
 typedef struct command {
-	int oper;
-	int mat1[MAXMTX][MAXMTX];
-	int mat2[MAXMTX][MAXMTX];
+	double mat[MAXMTX][MAXMTX];
 } command;
 
 #endif

@@ -63,7 +63,7 @@ void produkuj(int ur) {
 
 		tab[licznik] = e;
 
-		printf("Task added to %i cell\n", licznik);
+		printf("Zadanie dodane do %i komorki\n", licznik);
 
 		sb.sem_op = ZWIEKSZ;
 		semop(sem, &sb, 1);

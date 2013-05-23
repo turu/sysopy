@@ -25,38 +25,66 @@ void clean(int a) {
     shmdt(mem);
 }
 
-double computeDet(int n, double M[MAXMTX][MAXMTX]) {
-    int i, j, i_count, j_count, count=0;
-	double array[n - 1][n - 1], det=0;
+double computeDet(int n, double ** a) {
+    int i, j, j1, j2;
+    double det = 0;
+    double ** m = NULL;
 
-	if (n < 1) {
-		puts("Error");
-		exit(1);
-	}
-	if (n == 1) return M[0][0];
-	if (n == 2) return (M[0][0] * M[1][1] - M[0][1] * M[1][0]);
+    if (n == 1) {
+        det = a[0][0];
+    } else if (n == 2) {
+        det = a[0][0] * a[1][1] - a[1][0] * a[0][1];
+    } else {
+        det = 0;
+        for (j1=0;j1<n;j1++) {
+            m = malloc((n-1)*sizeof(double *));
+            for (i=0;i<n-1;i++)
+                m[i] = malloc((n-1)*sizeof(double));
+            for (i=1;i<n;i++) {
+                j2 = 0;
+                for (j=0;j<n;j++) {
+                    if (j == j1)
+                        continue;
+                    m[i-1][j2] = a[i][j];
+                    j2++;
+                }
+            }
+            det += pow(-1.0, 1.0+j1+1.0) * a[0][j1] * computeDet(n-1, m);
+            for (i=0;i<n-1;i++)
+                free(m[i]);
+            free(m);
+        }
+    }
+    return det;
+}
 
-	for (count = 0; count < n; count++) {
-		i_count=0;
-		for (i = 1; i < n; i++) {
-			j_count=0;
-			for (j = 0; j < n; j++) {
-				if(j == count) continue;
-				array[i_count][j_count] = M[i][j];
-				j_count++;
-			}
-			i_count++;
-		}
-		det += pow(-1, count) * M[0][count] * computeDet(n - 1, array);
-	}
-
-	return det;
+void echoMat(double M[MAXMTX][MAXMTX]) {
+    int i, j;
+    for (i = 0; i < MAXMTX; i++) {
+        for (j = 0; j < MAXMTX; j++) {
+            printf("%lf ", M[i][j]);
+        }
+        printf("\n");
+    }
 }
 
 void process(command e) {
-	double det = computeDet(MAXMTX, e.mat);
+    printf("-----------------------------------------------\n");
+    echoMat(e.mat);
+    int i;
+    double ** temp = (double**) malloc(MAXMTX * sizeof(double*));
+    for (i = 0; i < MAXMTX; i++) {
+        temp[i] = (double*) malloc(MAXMTX * sizeof(double));
+        memcpy(temp[i], e.mat[i], MAXMTX * sizeof(double));
+    }
+	double det = computeDet(MAXMTX, temp);
 
-	printf("Zadanie otrzymalem, zadanie wykonalem. Wynik to %f.\n", det);
+	printf("Zadanie otrzymalem, zadanie wykonalem. Wynik to %lf.\n", det);
+	printf("-----------------------------------------------\n");
+    for (i = 0; i < MAXMTX; i++) {
+        free(temp[i]);
+    }
+    free(temp);
 
 }
 

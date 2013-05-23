@@ -1,5 +1,5 @@
-#ifndef TYPES_H
-#define TYPES_H
+#ifndef _TYPES_H_
+#define _TYPES_H_
 
 #define KPATH "/tmp/serv"
 #define KVAL 66
@@ -15,11 +15,10 @@
 #define ZWIEKSZ 1
 #define ZMNIEJSZ -1
 
-struct expression
-{
+typedef struct command {
 	int oper;
 	int mat1[MAXMTX][MAXMTX];
 	int mat2[MAXMTX][MAXMTX];
-};
+} command;
 
 #endif

@@ -3,9 +3,9 @@ CFLAGS = -Wall
 
 SRC1 = producent.c
 SRC2 = konsument.c
-HEAD = types.h
+HEAD = commons.h
 
-.PHONY : all
+.PHONY : all clean
 all : producent konsument
 
 producent : producent.o
@@ -20,12 +20,7 @@ konsument : konsument.o
 konsument.o : $(SRC2) $(HEAD)
 	$(CC) $(CFLAGS) -c -o $@ $(SRC2)
 
-.PHONY : clean
 clean :
-	rm -f *.o
-	
-.PHONY : uninstall
-uninstall :
-	rm -f producent konsument
-
+	rm -rvf *.o
+	rm -rvf producent konsument
 

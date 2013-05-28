@@ -1,24 +1,8 @@
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/wait.h>
-#include <sys/ipc.h>
-#include <sys/sem.h>
-#include <sys/shm.h>
-#include <stdlib.h>
-#include <signal.h>
-#include <unistd.h>
-#include <limits.h>
-#include <string.h>
-#include <stdio.h>
-#include <fcntl.h>
-#include <errno.h>
-#include <time.h>
-
 #include "commons.h"
 
 int sem;
 int shm;
-void* mem;
+void * mem;
 
 void clean(int a) {
 	shmdt(mem);
@@ -26,7 +10,7 @@ void clean(int a) {
 	semctl(sem, IPC_RMID, 0);
 }
 
-void produkuj(int ur) {
+void produkuj(int id) {
 	srand(time(NULL));
 
 	command e;
@@ -34,25 +18,27 @@ void produkuj(int ur) {
 	struct sembuf sb;
 	sb.sem_flg = 0;
 
-	int* begin_p = mem;
-	command * tab = mem+2*sizeof(int);
+	int * begin_p = mem;
+	command * tab = mem + 2 * sizeof(int);
 
-	if (ur)
+	if (id) {
 		*begin_p = 0;
-	int licznik;
+	}
+
+    int licznik;
 
 	while (1) {
 		sb.sem_num = PRODUCENT;
-		sb.sem_op = ZMNIEJSZ;
+		sb.sem_op = DEC;
 
 		semop(sem, &sb, 1);
 
-		sb.sem_num = LICZNIK;
+		sb.sem_num = CTR;
 
 		semop(sem, &sb, 1);
 
 		licznik = *begin_p;
-		(*begin_p) = (licznik+1)%MAXTAB;
+		(*begin_p) = (licznik + 1) % MAXTAB;
 
 		int i, j;
 		for (i = 0; i < MAXMTX; ++i) {
@@ -63,11 +49,11 @@ void produkuj(int ur) {
 
 		tab[licznik] = e;
 
-		printf("Zadanie dodane do %i komorki\n", licznik);
+		printf("Zadanie dodane do %d komorki\n", licznik);
 
-		sb.sem_op = ZWIEKSZ;
+		sb.sem_op = INC;
 		semop(sem, &sb, 1);
-		sb.sem_num = KONSUMENT;
+		sb.sem_num = CONSUMER;
 		semop(sem, &sb, 1);
 	}
 }
@@ -76,7 +62,7 @@ void produkuj(int ur) {
 int main(int argc, char* argv[]) {
 	int des;
 	key_t klucz;
-	int ur = 1;
+	int id = 1;
 
 	signal(SIGINT, clean);
     des = open(KPATH, O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR);
@@ -86,19 +72,19 @@ int main(int argc, char* argv[]) {
 	klucz = ftok(KPATH, KVAL);
 
 	if ((sem = semget(klucz, 3, IPC_CREAT | IPC_EXCL | S_IRWXU)) == -1) {
-        ur = 0;
+        id = 0;
         if((sem = semget(klucz, 3, 0)) == -1) {
             printf("%s\n", strerror(errno));
             return -1;
         }
 	} else {
 		semctl(sem, PRODUCENT, SETVAL, MAXTAB);
-		semctl(sem, KONSUMENT, SETVAL, 0);
-        semctl(sem, LICZNIK, SETVAL, 1);
+		semctl(sem, CONSUMER, SETVAL, 0);
+        semctl(sem, CTR, SETVAL, 1);
 	}
 
 	if ((shm = shmget(klucz, MAXTAB*sizeof(command)+2*sizeof(int), IPC_CREAT | IPC_EXCL | S_IRWXU)) == -1) {
-        ur = 0;
+        id = 0;
         if ((shm = shmget(klucz, MAXTAB*sizeof(command)+2*sizeof(int), 0)) == -1) {
             printf("%s\n", strerror(errno));
             return -1;
@@ -106,7 +92,7 @@ int main(int argc, char* argv[]) {
 	}
 
 	mem = shmat(shm, NULL, 0);
-	produkuj(ur);
+	produkuj(id);
 	clean(0);
 
 	return 0;

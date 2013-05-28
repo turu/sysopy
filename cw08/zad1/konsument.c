@@ -1,25 +1,9 @@
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/wait.h>
-#include <sys/ipc.h>
-#include <sys/sem.h>
-#include <sys/shm.h>
-#include <stdlib.h>
-#include <signal.h>
-#include <unistd.h>
-#include <limits.h>
-#include <string.h>
-#include <stdio.h>
-#include <fcntl.h>
-#include <errno.h>
-#include <time.h>
 #include <math.h>
-
 #include "commons.h"
 
 int sem;
 int shm;
-void* mem;
+void * mem;
 
 void clean(int a) {
     shmdt(mem);
@@ -88,33 +72,34 @@ void process(command e) {
 
 }
 
-void konsumuj(int ur) {
+void konsumuj(int id) {
     command e;
 
 	struct sembuf sb;
 	sb.sem_flg = 0;
 
-	int* begin_k = mem+sizeof(int);
-	command * tab = mem+2*sizeof(int);
+	int* begin_k = mem + sizeof(int);
+	command * tab = mem + 2 * sizeof(int);
 
-	if (ur)
+	if (id) {
 		*begin_k = 0;
+	}
 	int licznik;
 
 	while (1) {
 		sb.sem_num = KONSUMENT;
-		sb.sem_op = ZMNIEJSZ;
+		sb.sem_op = DEC;
 
 		semop(sem, &sb, 1);
-		sb.sem_num = LICZNIK;
+		sb.sem_num = CTR;
 		semop(sem, &sb, 1);
 
 		licznik = *begin_k;
-		(*begin_k) = (licznik+1)%MAXTAB;
+		(*begin_k) = (licznik + 1) % MAXTAB;
 
 		e = tab[licznik];
 		process(e);
-		sb.sem_op = ZWIEKSZ;
+		sb.sem_op = INC;
 		semop(sem, &sb, 1);
 		sb.sem_num = PRODUCENT;
 		semop(sem, &sb, 1);
@@ -124,31 +109,31 @@ void konsumuj(int ur) {
 
 int main(int argc, char ** argv) {
 	key_t klucz;
-	int ur;
+	int id;
 
 	signal(SIGINT, clean);
 
 	klucz = ftok(KPATH, KVAL);
 
 	if ((sem = semget(klucz, 3, IPC_CREAT | IPC_EXCL | S_IRWXU)) == -1) {
-        ur = 0;
+        id = 0;
         sem = semget(klucz, 3, 0);
 	} else {
         semctl(sem, PRODUCENT, SETVAL, MAXTAB);
 		semctl(sem, KONSUMENT, SETVAL, 0);
-		semctl(sem, LICZNIK, SETVAL, 1);
+		semctl(sem, CTR, SETVAL, 1);
 	}
 
-	if ((shm = shmget(klucz, MAXTAB*sizeof(command)+2*sizeof(int), IPC_CREAT | IPC_EXCL | S_IRWXU)) == -1) {
-        ur = 0;
-        if ((shm = shmget(klucz, MAXTAB*sizeof(command)+2*sizeof(int), 0)) == -1) {
+	if ((shm = shmget(klucz, MAXTAB * sizeof(command) + 2 * sizeof(int), IPC_CREAT | IPC_EXCL | S_IRWXU)) == -1) {
+        id = 0;
+        if ((shm = shmget(klucz, MAXTAB * sizeof(command) + 2 * sizeof(int), 0)) == -1) {
             printf("%s\n", strerror(errno));
             return -1;
         }
 	}
 
 	mem = shmat(shm, NULL, 0);
-	konsumuj(ur);
+	konsumuj(id);
 	clean(0);
 
 	return 0;

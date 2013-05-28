@@ -3,7 +3,7 @@ CFLAGS = -Wall
 
 SRC1 = pisarz.c
 SRC2 = czytelnik.c
-HEAD = types.h
+HEAD = commons.h
 
 .PHONY : all
 all : pisarz czytelnik

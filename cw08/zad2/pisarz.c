@@ -1,282 +1,117 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <signal.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/wait.h>
-#include <sys/mman.h>
-#include <semaphore.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <limits.h>
-#include <time.h>
-#include <string.h>
-#include <errno.h>
+#include "commons.h"
 
-#include "types.h"
+sem_t * counter_semaphore;
+sem_t * fifo_semaphore;
+int shared;
+void * memory;
+int fifo;
 
-sem_t* semc;
-sem_t* semf;
-int shm;
-void* mem;
-int des;
-
-void clean(int a)
-{
-	if(munmap(mem, MAXTAB*sizeof(int)+2*sizeof(int)) == -1)
-	{
-		printf("%s\n", strerror(errno));
-		exit(-1);
-	}
-	
-	if(shm_unlink("/shared") == -1)
-	{
-		printf("%s\n", strerror(errno));
-		exit(-1);
-	}
-	
-	if(sem_close(semc) == -1)
-	{
-		printf("%s\n", strerror(errno));
-		exit(-1);
-	}
-	
-	if(sem_close(semf) == -1)
-	{
-		printf("%s\n", strerror(errno));
-		exit(-1);
-	}
-	
-	if(sem_unlink("/czyt") == -1)
-	{
-		printf("%s\n", strerror(errno));
-		exit(-1);
-	}
-	
-	if(sem_unlink("/fo") == -1)
-	{
-		printf("%s\n", strerror(errno));
-		exit(-1);
-	}
-	
-	if(close(des) == -1)
-	{
-		printf("%s\n", strerror(errno));
-		exit(-1);
-	}
-	
+void clean(int v) {
+	munmap(memory, MAXTAB*sizeof(int)+2*sizeof(int));
+	shm_unlink("/shared");
+	sem_close(counter_semaphore);
+    sem_close(fifo_semaphore);
+	sem_unlink("/readers_counter");
+	sem_unlink("/fifos");
+	close(fifo);
 	remove(FPATH);
+	exit(0);
 }
 
-void pisz(int ur)
-{
+void pisoj(int freshly_created){
 	srand(time(NULL));
-	
-	int* czyt = mem;
-	int* fif = mem+sizeof(int);
-	int* tab = mem+2*sizeof(int);
-	
-	if(ur)
-	{
-		*czyt = 0;
-		*fif = 0;
+
+	int * readers_counter = memory;
+	int * operating_next_pid = memory + sizeof(int);
+	int * tab = memory + 2 * sizeof(int);
+
+	if (freshly_created) {
+		*readers_counter = 0;
+		*operating_next_pid = 0;
 	}
-		
+
 	int pid = getpid();
 	int tmp;
-	int rd;
-	int licznik = 1;
-	
-	while(1)
-	{
-		if(write(des, &pid, sizeof(int)) == -1)
-		{
-			if(errno != EAGAIN)
-			{
-				printf("%s\n", strerror(errno));
-				clean(0);
-				exit(-1);
-			}
-		}
+	int write_number = 1;
 
-		if(sem_wait(semf) == -1)
-		{
-			printf("%s\n", strerror(errno));
-			clean(0);
-			exit(-1);
-		}
+	while (1) {
+		write(fifo, &pid, sizeof(int));
 
-		if(*fif == 0)
-		{
-			*fif = pid;
-	
-			if(sem_post(semf) == -1)
-			{
-				printf("%s\n", strerror(errno));
-				clean(0);
-				exit(-1);
-			}
-		}
-		else
-		{
-			if(*fif == pid)
-			{
-				if(read(des, &tmp, sizeof(int)) == -1)
-				{
-					if(errno == EAGAIN)
-						*fif = 0;
-					else
-					{
-						printf("%s\n", strerror(errno));
-						clean(0);
-						exit(-1);
-					}	
-				}
-				else
-					*fif = tmp;
+        sem_wait(fifo_semaphore);
 
-				if(sem_post(semf) == -1)
-				{
-					printf("%s\n", strerror(errno));
-					clean(0);
-					exit(-1);
-				}
-
-				while(1)
-				{
-					if(sem_wait(semc) == -1)
-					{
-						printf("%s\n", strerror(errno));
-						clean(0);
-						exit(-1);
+		if (*operating_next_pid == 0) {
+			sem_post(fifo_semaphore);
+			*operating_next_pid = pid;
+		} else {
+			if (*operating_next_pid == pid) {
+				if (read(fifo, &tmp, sizeof(int)) == -1) {
+					if(errno == EAGAIN){
+						*operating_next_pid = 0;
 					}
-				
-					if(*czyt == 0)
+				} else {
+					*operating_next_pid = tmp;
+				}
+				sem_post(fifo_semaphore);
+
+				while (1) {
+					sem_wait(counter_semaphore);
+
+					if(*readers_counter == 0)
 						break;
-			
-					if(sem_post(semc) == -1)
-					{
-						printf("%s\n", strerror(errno));
-						clean(0);
-						exit(-1);
-					}
+
+					sem_post(counter_semaphore);
 				}
 
-				rd = rand()%MAXTAB;
-				int i;
-				for(i = 0; i < rd; ++i)
-					tab[rand()%MAXTAB] = rand()%100;
+                int how_many = rand() % MAXTAB;
+                int i = 0, k = how_many;
+                while (how_many--) {
+                    i+=rand()%(MAXTAB-i-how_many);
+                    tab[i]=rand()%15;
+                }
 
-				printf("Modyfikacja: %i. Zmodyfikowalem tablice. %i zmiany\n",licznik++, rd);
-				
-				if(sem_post(semc) == -1)
-				{
-					printf("%s\n", strerror(errno));
-					clean(0);
-					exit(-1);
-				}			
-			}
-			else
-			{
-				if(sem_post(semf) == -1)
-				{
-					printf("%s\n", strerror(errno));
-					clean(0);
-					exit(-1);
-				}
+				printf("(%d) %d values had been modified\n", write_number++, k);
+
+				sem_post(counter_semaphore);
+			} else {
+				sem_post(fifo_semaphore);
 			}
 		}
-		
-
 	}
 }
 
-sem_t* createSemafor(char* path, int* ur)
-{
-	sem_t* sem;
-	if((sem = sem_open(path, O_CREAT | O_EXCL, S_IRWXU, 1)) == SEM_FAILED)
-	{
-		if(errno != EEXIST)
-		{
-			printf("%s\n", strerror(errno));
-			exit(-1);
-		}
-		else
-		{
-			ur = 0;
-			if((sem = sem_open(path,  0)) == SEM_FAILED)
-			{
-				printf("%s\n", strerror(errno));
-				exit(-1);
-			}
-		}
+sem_t * getSemaphore(char* path, int* freshly_created) {
+	sem_t * sem;
+
+	if ((sem = sem_open(path, O_CREAT | O_EXCL, S_IRWXU, 1)) == SEM_FAILED) {
+        freshly_created = 0;
+        sem = sem_open(path,  0);
 	}
+
 	return sem;
 }
 
 
-int main(int argc, char* argv[])
-{
-	int ur = 1;
-	
-	if(signal(SIGINT, clean) == SIG_ERR)
-	{
-		printf("%s\n", strerror(errno));
-		return -1;
-	}
+int main(int argc, char ** argv) {
+	int freshly_created = 1;
+	signal(SIGINT, clean);
 	signal(SIGSEGV, clean);
-	
-	if(mkfifo(FPATH, S_IRWXU) == -1)
-	{
-		if(errno != EEXIST)
-		{
-			printf("%s\n", strerror(errno));
-			return -1;
-		}
-	}
-	
-	if((des = open(FPATH, O_RDWR | O_NONBLOCK)) == -1)
-	{
-		printf("%s\n", strerror(errno));
-		return -1;
+
+	mkfifo(FPATH, S_IRWXU);
+	fifo = open(FPATH, O_RDWR | O_NONBLOCK);
+
+	counter_semaphore = getSemaphore("/readers_counter", &freshly_created);
+	fifo_semaphore = getSemaphore("/fifos", &freshly_created);
+
+	if((shared = shm_open("/shared", O_RDWR | O_CREAT | O_EXCL, S_IRWXU)) == -1){
+        freshly_created = 0;
+        shared = shm_open("/shared", O_RDWR, 0);
 	}
 
-	semc = createSemafor("/czyt", &ur);
-	semf = createSemafor("/fo", &ur);
-	
-	if((shm = shm_open("/shared", O_RDWR | O_CREAT | O_EXCL, S_IRWXU)) == -1)
-	{
-		if(errno != EEXIST)
-		{
-			printf("%s\n", strerror(errno));
-			return -1;
-		}
-		else
-		{
-			ur = 0;
-			if((shm = shm_open("/shared", O_RDWR, 0)) == -1)
-			{
-				printf("%s\n", strerror(errno));
-				return -1;
-			}
-		}
-	}
-	
-	if(ftruncate(shm, MAXTAB*sizeof(int)+sizeof(int)) == -1)
-	{
-		printf("%s\n", strerror(errno));
-		return -1;
-	}
-	
-	if((mem = mmap(NULL, MAXTAB*sizeof(int)+2*sizeof(int), PROT_READ | PROT_WRITE, MAP_SHARED, shm, 0)) == NULL)
-	{
-		printf("%s\n", strerror(errno));
-		return -1;
-	}
-	
-	pisz(ur);
-	
+	ftruncate(shared, MAXTAB*sizeof(int)+sizeof(int));
+	memory = mmap(NULL, MAXTAB*sizeof(int)+2*sizeof(int), PROT_READ | PROT_WRITE, MAP_SHARED, shared, 0);
+
+	pisoj(freshly_created);
+
 	clean(0);
-	
 	return 0;
 }

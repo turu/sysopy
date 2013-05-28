@@ -87,7 +87,7 @@ void konsumuj(int id) {
 	int licznik;
 
 	while (1) {
-		sb.sem_num = KONSUMENT;
+		sb.sem_num = CONSUMER;
 		sb.sem_op = DEC;
 
 		semop(sem, &sb, 1);
@@ -120,7 +120,7 @@ int main(int argc, char ** argv) {
         sem = semget(klucz, 3, 0);
 	} else {
         semctl(sem, PRODUCENT, SETVAL, MAXTAB);
-		semctl(sem, KONSUMENT, SETVAL, 0);
+		semctl(sem, CONSUMER, SETVAL, 0);
 		semctl(sem, CTR, SETVAL, 1);
 	}
 

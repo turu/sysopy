@@ -10,6 +10,15 @@
 #include <pthread.h>
 #include <signal.h>
 
+typedef struct threadInit {
+    int fd;
+	int thread_count;
+	int buf_size;
+	char * to_search;
+	pthread_t * threads;
+	int filesize;
+} threadInit;
+
 pthread_mutex_t mutex;
 long file_ptr = 0;
 
@@ -25,25 +34,26 @@ size_t getFileSize(char * filename) {
 }
 
 void * thread_run(void * args) {
-	int fd = (int) ((int *)args)[0];
-	int thread_count = (int) ((int *)args)[1];
-	int buf_size = (int) ((int *)args)[2];
-	char * to_search = (char *) ((int *)args)[3];
-	int * threads = (int *)((int *)args)[4];
-	int filesize = ((int *)args)[5];
+    threadInit * init = (threadInit*) args;
+	int fd = init->fd;
+	int thread_count = init->thread_count;
+	int buf_size = init->buf_size;
+	char * to_search = init->to_search;
+	pthread_t * threads = init->threads;
+	int filesize = init->filesize;
 
 	char * buf = (char *) malloc(sizeof(char) * buf_size);
 
-	int oldstate = 0;
+	int unused = 0;
 
 	#ifdef V_A
-	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, &oldstate);
-	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, &oldstate);
+	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, &unused);
+	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, &unused);
 	#elif V_B
-	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, &oldstate);
-	pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, &oldstate);
+	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, &unused);
+	pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, &unused);
 	#elif V_C
-    pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, &oldstate);
+    pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, &unused);
 	#endif
 
 	int i, j = 0;
@@ -57,10 +67,10 @@ void * thread_run(void * args) {
 	    }
 	    int status;
 		if ((status = read(fd, buf, buf_size)) < 0) {
-		    printf("Failure reading chunk of file at position %d.\n", file_ptr);
+		    printf("Failure reading chunk of file at position %ld.\n", file_ptr);
 		    exit(19);
 		}
-		if (status = 0) break;
+		if (status == 0) break;
 		buf_size = status;
 		file_ptr += buf_size;
 		pthread_mutex_unlock(&mutex);
@@ -87,7 +97,7 @@ void * thread_run(void * args) {
 	}
 
 	if (found) {
-		printf("TID = %d\t file_ptr=%d\n", (int)pthread_self(), found);
+		printf("TID = %d\t file_ptr=%d\n", (int)pthread_self(), found - buf_size);
 
         #ifndef V_C
 		for (i = 0; i < thread_count; i++) {
@@ -97,7 +107,7 @@ void * thread_run(void * args) {
 		}
         #endif
 	} else {
-        printf("TID=%d not found any occurences of the pattern.\n", (int)pthread_self());
+        printf("TID = %d not found any occurences of the pattern.\n", (int)pthread_self());
 	}
 
 	return NULL;
@@ -109,21 +119,26 @@ int main(int argc, char ** argv) {
 	int buf_size = 256;
 	char * filename = malloc(sizeof(char) * 256);
 	char * to_search = malloc(sizeof(char) * 256);
+	int args_passed = 0;
 
 	int c;
 	while((c = getopt(argc, argv, "t:f:b:s:h")) != -1) {
 		switch (c) {
 			case 't':
                 thread_count = atoi(optarg);
+                args_passed++;
                 break;
             case 'f':
                 filename = strcpy(filename, optarg);
+                args_passed++;
                 break;
 			case 'b':
                 buf_size = atoi(optarg);
+                args_passed++;
                 break;
             case 's':
                 to_search = strcpy(to_search, optarg);
+                args_passed++;
                 break;
 			case 'h':
                 printHelp();
@@ -133,6 +148,11 @@ int main(int argc, char ** argv) {
                 printHelp();
                 exit(1);
 		}
+	}
+
+	if (args_passed != 4) {
+	    printHelp();
+	    exit(21);
 	}
 
 	int fd = open(filename, O_RDONLY);
@@ -148,13 +168,13 @@ int main(int argc, char ** argv) {
 
 	pthread_t * threads = (pthread_t *) malloc(sizeof(pthread_t) * thread_count);
 
-	int * args = (int *) malloc(sizeof(int) * 6);
-	args[0] = fd;
-	args[1] = thread_count;
-	args[2] = buf_size;
-	args[3] = (int) to_search;
-	args[4] = (int) threads;
-	args[5] = (int) getFileSize(filename);
+	threadInit * args = (threadInit*) malloc(sizeof(threadInit));
+	args->fd = fd;
+	args->thread_count = thread_count;
+	args->buf_size = buf_size;
+	args->to_search = to_search;
+	args->threads = threads;
+	args->filesize = (int) getFileSize(filename);
 
 	int i;
 	for (i = 0; i < thread_count; i++) {
@@ -162,6 +182,7 @@ int main(int argc, char ** argv) {
 		    printf("Could not create thread no %d.\n", i);
 		    exit(4);
 		}
+		printf("Created thread id %d.\n", (int) threads[i]);
 	}
 
 	for(i = 0 ; i < thread_count ; i++)

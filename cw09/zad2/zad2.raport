@@ -27,3 +27,7 @@
 	b) SIGTERM - sygnal prawidlowo obsluzony
 	c) SIGKILL - wyjscie z programu
 	d) SIGSTOP - program zostaje zastopowany
+
+///////////////////////////////////////////////////////
+b) Wygenerowanie bledu dzielenia przez zero powoduje ubicie wszystkich watkow i calego programu oraz wygenerowanie pliku core
+Linux Fedora

@@ -1,19 +1,19 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <errno.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <syslog.h>
 #include <sys/resource.h>
-#include <signal.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <syslog.h>
+#include <signal.h>
 #include <sys/un.h>
 #include <getopt.h>
+#include <stdio.h>
+#include <errno.h>
+#include <fcntl.h>
 #include <netdb.h>
 
 #include "commons.h"
@@ -49,7 +49,7 @@ int getInternetSocket(int port) {
     return sock;
 }
 
-int getUnixSocket(char* file) {
+int getUnixSocket(char * file) {
 	struct sockaddr_un srv_name;
 	int sock;
 
@@ -71,7 +71,7 @@ int getUnixSocket(char* file) {
     return sock;
 }
 
-void sendUsers(int sock, struct sockaddr* client_name) {
+void sendUsers(int sock, struct sockaddr * client_name) {
 	int c = 0;
 
 	int i;
@@ -82,18 +82,16 @@ void sendUsers(int sock, struct sockaddr* client_name) {
 	}
 
 	UserInfoHeader uih;
-	uih.count = c;
+	uih.user_count = c;
 
 	if (sendto(sock, &uih, sizeof(UserInfoHeader), 0, client_name, sizeof(*client_name)) < 0) {
 		printf("Could not send message header!\n");
-        exit(1);
 	}
 
 	for (i = 0; i < MAXCLIENTS; i++) {
 		if (users[i]) {
 			if (sendto(sock, users[i], sizeof(User), 0, client_name, sizeof(*client_name)) < 0) {
 				printf("Could not send user %d to the user.\n", i);
-				exit(1);
 			}
 		}
 	}
@@ -101,12 +99,13 @@ void sendUsers(int sock, struct sockaddr* client_name) {
 
 void serveRequest(int sock) {
 	Request req;
+	CommandRequest cr;
+	int sockId;
 	struct sockaddr client_name;
 
 	socklen_t siz = (socklen_t) sizeof(client_name);
 	if(recvfrom(sock, &req, sizeof(Request), MSG_DONTWAIT, &client_name, &siz) < 0) {
-		printf("Could not receive message!");
-		exit(2);
+		printf("Could not receive message!\n");
 	}
 
 	switch(req.type) {
@@ -120,62 +119,60 @@ void serveRequest(int sock) {
 			memcpy(users[userCounter]->client_name, &client_name, sizeof(client_name));
 
 			if(sendto(sock, &userCounter, sizeof(int), 0, &client_name, req.size) == -1) {
-				printf("Could not send ID.\n");
-				exit(3);
+				printf("Could not send ID %d.\n", userCounter);
 			}
 
 			userCounter = (userCounter+1) % MAXCLIENTS;
 			break;
-		case REQ_GETUSERS:
-			sendUsers(sock, &client_name);
-			break;
-		case REQ_USERINFO: {
-			if(users[req.value]) {
-				int s;
-				s = users[req.value]->mode ? internetSocket : unixSocket;
-				if(sendto(s, &req.id, sizeof(int), 0, users[req.value]->client_name, users[req.value]->size) == -1)
-				{
-					printf("%s\n", strerror(errno));
-					printf("Nie mozna wyslac ID!\n");
-					exit(1);
-				}
-			} else {
-				struct Info info;
-				if(sendto(sock, &info, sizeof(Info), 0, &client_name, users[req.id]->size) == -1)
-				{
-					printf("%s\n", strerror(errno));
-					printf("Nie mozna wyslac ID!\n");
-					exit(1);
-				}
-			}
-			break;
-		}
-		case REQ_RETUSERINFO: {
-			Info info;
-
-			if(recvfrom(sock, &info, sizeof(Info), 0, &client_name, (socklen_t*)&users[req.id]->size) == -1) {
-				printf("Nie mozna odebrac\n");
-				exit(1);
-			}
-
-			int s;
-			s = users[req.value]->mode ? internetSocket : unixSocket;
-			if(users[req.value])
-				if(sendto(s, &info, sizeof(Info), 0, users[req.value]->client_name, users[req.value]->size) == -1)
-				{
-					printf("%s\n", strerror(errno));
-					printf("Nie mozna wyslac ID!\n");
-					exit(1);
-				}
-			break;
-		}
-		case REQ_LOGOUT: {
+		case REQ_LOGOUT:
+            if (users[req.id] == NULL) {
+                printf("User not connected");
+            }
 			free(users[req.id]->client_name);
 			free(users[req.id]);
 			users[req.id] = NULL;
-
 			break;
-		}
+		case REQ_GETUSERS:
+			sendUsers(sock, &client_name);
+			break;
+        case REQ_EXECUTE:
+            if (users[req.value]->mode == MODE_UNIX) {
+                sockId = unixSocket;
+            } else {
+                sockId = internetSocket;
+            }
+            strcpy(cr.command_name, req.name);
+            cr.id = req.id;
+
+            if (users[req.value]) {
+                if(sendto(sockId, &cr, sizeof(CommandRequest), 0, users[req.value]->client_name, users[req.value]->size) < 0) {
+					printf("Could not send command execution request!\n");
+				}
+            } else {
+                strcpy(cr.value, "Target user unavailable, try again later.\n");
+                if(sendto(sockId, &cr, sizeof(CommandRequest), 0, &client_name, users[req.id]->size) < 0) {
+					printf("Could not send command execution failure response!\n");
+				}
+            }
+            break;
+        case REQ_RESP_EXECUTE:
+            if(recvfrom(sock, &cr, sizeof(CommandRequest), 0, &client_name, (socklen_t*)&users[req.id]->size) < 0) {
+				printf("Could not receive data.\n");
+			}
+
+            if (users[req.value]->mode == MODE_UNIX) {
+                sockId = unixSocket;
+            } else {
+                sockId = internetSocket;
+            }
+
+            if (users[req.value]) {
+				if(sendto(sockId, &cr, sizeof(CommandRequest), 0, users[req.value]->client_name, users[req.value]->size) < 0) {
+					printf("Could not send command execution response to user %d!\n", req.value);
+				}
+            }
+
+            break;
 	}
 }
 

@@ -167,7 +167,7 @@ void getLoggedUsers(int sock, int mode) {
 
 	User user;
 	int i;
-	for(i = 0; i < uih.count; ++i) {
+	for(i = 0; i < uih.user_count; ++i) {
 		if(recvfrom(sock, &user, sizeof(User), 0, srv_name, &size) == -1) {
 			printf("Nie mozna czytac wiadomosci\n");
 			exit(1);

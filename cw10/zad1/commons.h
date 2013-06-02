@@ -18,7 +18,7 @@
 #define MODE_INET 1
 
 typedef struct UserInfoHeader {
-	int count;
+	int user_count;
 } UserInfoHeader;
 
 typedef struct User {
@@ -51,8 +51,10 @@ typedef struct Info {
 	int totmem;
 } Info;
 
-typedef struct Result {
-
-} Result;
+typedef struct CommandRequest {
+    int id;
+    char command_name[100];
+    char value[256];
+} CommandRequest;
 
 #endif

@@ -32,19 +32,19 @@ int getInternetSocket(int port) {
 	struct sockaddr_in srv_name;
 	int sock;
 
-	if((sock = socket(PF_INET, SOCK_DGRAM, 0)) == -1) {
-        	printf("Nie mozna otworzyc soketu\n");
-        	exit(1);
-    	}
+	if ((sock = socket(PF_INET, SOCK_DGRAM, 0)) == -1) {
+        printf("Could not create socket!\n");
+        exit(1);
+    }
 
-    	srv_name.sin_family = AF_INET;
-    	srv_name.sin_port = htons(port);
-	srv_name.sin_addr.s_addr = htonl(INADDR_ANY);
+    srv_name.sin_family = AF_INET;
+    srv_name.sin_port = htons(port);
+    srv_name.sin_addr.s_addr = htonl(INADDR_ANY);
 
-	if(bind(sock, (struct sockaddr*)&srv_name, sizeof(srv_name)) == -1) {
-    		printf("Nie mozna polaczyc\n");
-        	exit(1);
-    	}
+    if (bind(sock, (struct sockaddr*)&srv_name, sizeof(srv_name)) < 0) {
+        printf("Connection failure.\n");
+        exit(1);
+    }
 
     return sock;
 }
@@ -55,42 +55,44 @@ int getUnixSocket(char* file) {
 
 	unlink(file);
 
-	if((sock = socket(PF_UNIX, SOCK_DGRAM, 0)) == -1) {
-        	printf("Nie mozna otworzyc soketu\n");
-        	exit(1);
-    	}
+	if ((sock = socket(PF_UNIX, SOCK_DGRAM, 0)) == -1) {
+        printf("Could not create socket!\n");
+        exit(1);
+    }
 
     srv_name.sun_family = AF_UNIX;
     strcpy(srv_name.sun_path, file);
 
-    if(bind(sock, (struct sockaddr*)&srv_name, SUN_LEN(&srv_name)) == -1) {
-    	printf("Nie mozna polaczyc\n");
+    if(bind(sock, (struct sockaddr*)&srv_name, SUN_LEN(&srv_name)) < 0) {
+    	printf("Connection failure.\n");
         exit(1);
     }
 
     return sock;
 }
 
-void sendLoggedUsers(int sock, struct sockaddr* client_name) {
+void sendUsers(int sock, struct sockaddr* client_name) {
 	int c = 0;
 
 	int i;
-	for(i = 0; i < MAXCLIENTS; ++i)
-		if(users[i])
-			++c;
-
-	PendingMessages pm;
-	pm.count = c;
-
-	if(sendto(sock, &pm, sizeof(PendingMessages), 0, client_name, sizeof(*client_name)) == -1) {
-		printf("Nie mozna wyslac wiadomosci!\n");
-	    	exit(1);
+	for (i = 0; i < MAXCLIENTS; i++) {
+		if (users[i]) {
+			c++;
+		}
 	}
 
-	for(i = 0; i < MAXCLIENTS; ++i) {
-		if(users[i]) {
-			if(sendto(sock, users[i], sizeof(User), 0, client_name, sizeof(*client_name)) == -1) {
-				printf("Nie mozna wyslac wiadomosci!\n");
+	UserInfoHeader uih;
+	uih.count = c;
+
+	if (sendto(sock, &uih, sizeof(UserInfoHeader), 0, client_name, sizeof(*client_name)) < 0) {
+		printf("Could not send message header!\n");
+        exit(1);
+	}
+
+	for (i = 0; i < MAXCLIENTS; i++) {
+		if (users[i]) {
+			if (sendto(sock, users[i], sizeof(User), 0, client_name, sizeof(*client_name)) < 0) {
+				printf("Could not send user %d to the user.\n", i);
 				exit(1);
 			}
 		}
@@ -108,7 +110,7 @@ void serveRequest(int sock) {
 	}
 
 	switch(req.type) {
-		case REQ_LOGIN: {
+		case REQ_LOGIN:
 			users[userCounter] = (User*) malloc(sizeof(User));
 			users[userCounter]->id = userCounter;
 			users[userCounter]->size = req.size;
@@ -118,18 +120,15 @@ void serveRequest(int sock) {
 			memcpy(users[userCounter]->client_name, &client_name, sizeof(client_name));
 
 			if(sendto(sock, &userCounter, sizeof(int), 0, &client_name, req.size) == -1) {
-				printf("Nie mozna wyslac ID!\n");
-				printf("%s\n", strerror(errno));
-				exit(1);
+				printf("Could not send ID.\n");
+				exit(3);
 			}
 
-			userCounter = (userCounter+1)%MAXCLIENTS;
+			userCounter = (userCounter+1) % MAXCLIENTS;
 			break;
-		}
-		case REQ_GETUSERS: {
-			sendLoggedUsers(sock, &client_name);
+		case REQ_GETUSERS:
+			sendUsers(sock, &client_name);
 			break;
-		}
 		case REQ_USERINFO: {
 			if(users[req.value]) {
 				int s;
@@ -191,7 +190,7 @@ void serverDestroy(int arg) {
 	int i;
 	close(unixSocket);
 	close(internetSocket);
-	for (i = 0; i < userCounter; ++i) {
+	for (i = 0; i < MAXCLIENTS; ++i) {
 		if (users[i] != NULL) {
 			free(users[i]->client_name);
 			free(users[i]);

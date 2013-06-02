@@ -17,9 +17,9 @@
 #define MODE_UNIX 0
 #define MODE_INET 1
 
-typedef struct PendingMessages {
+typedef struct UserInfoHeader {
 	int count;
-} PendingMessages;
+} UserInfoHeader;
 
 typedef struct User {
 	int id;

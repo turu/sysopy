@@ -157,23 +157,23 @@ void getLoggedUsers(int sock, int mode) {
 		exit(1);
 	}
 
-	PendingMessages pm;
-	if(recvfrom(sock, &pm, sizeof(PendingMessages), 0, srv_name, &size) == -1) {
+	UserInfoHeader uih;
+	if(recvfrom(sock, &uih, sizeof(UserInfoHeader), 0, srv_name, &size) == -1) {
 		printf("Nie mozna czytac wiadomosci\n");
 	    exit(1);
 	}
 
 	printf("========== UZYTWKONICY ==========\n\n");
 
-	User lu;
+	User user;
 	int i;
-	for(i = 0; i < pm.count; ++i) {
-		if(recvfrom(sock, &lu, sizeof(User), 0, srv_name, &size) == -1) {
+	for(i = 0; i < uih.count; ++i) {
+		if(recvfrom(sock, &user, sizeof(User), 0, srv_name, &size) == -1) {
 			printf("Nie mozna czytac wiadomosci\n");
 			exit(1);
 		}
 
-		printf("ID: %i   %s\n", lu.id, lu.name);
+		printf("ID: %i   %s\n", user.id, user.name);
 	}
 
 	printf("\n");

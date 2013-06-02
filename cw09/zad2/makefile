@@ -1,9 +1,17 @@
 CFLAGS=-Wall -lpthread
 CC=gcc
 
-all: zad1
+ifdef VER
+	CFLAGS += -D $(VER)
+endif
 
-zad1: zad1.c
+ifdef SIG
+	CFLAGS += -D $(SIG)
+endif
+
+all: zad2
+
+zad1: zad2.c
 	$(CC) -o $@.out $^ $(CFLAGS)
 	
 clean:

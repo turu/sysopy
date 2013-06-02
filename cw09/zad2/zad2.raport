@@ -1,29 +1,29 @@
-1) Å»aden wÄ…tek nie ma zamaskowanego sygnaÅ‚u
-	a) SIGUSR1 - program koÅ„czy prace (SygnaÅ‚ uÅ¼ytkownika 1)
-	b) SIGTERM - program koÅ„czy prace (ZakoÅ„czony)
-	c) SIGKILL - program koÅ„czy pracÄ™ (Unicestwiony)
+1) Zaden watek nie ma zamaskowanego sygnalu:
+	a) SIGUSR1 - wyjscie z programu
+	b) SIGTERM - wyjscie z programu
+	c) SIGKILL - wyjscie z programu
 	d) SIGSTOP - program zostaje zastopowany
 
-2) WÄ…tek gÅ‚Ã³wny ma sygnaÅ‚ zablokowany
-	a) SIGUSR1 - nic siÄ™ nie dzieje
-	b) SIGTERM - nic siÄ™ nie dzieje
-	c) SIGKILL - program koÅ„czy pracÄ™ (Unicestwiony)
+2) Glowny watek ma zamaskowany sygnal, a pozostale nie:
+	a) SIGUSR1 - brak reakcji
+	b) SIGTERM - brak reakcji
+	c) SIGKILL - wyjscie z programu (Unicestwiony)
 	d) SIGSTOP - program zostaje zastopowany
 	
-3) WÄ…tki posiadajÄ… obsÅ‚ugÄ™ sygnaÅ‚u
-	a) SIGUSR1 - sygnaÅ‚ prawidÅ‚owo obsÅ‚uÅ¼ony
-	b) SIGTERM - sygnaÅ‚ prawidÅ‚owo obsÅ‚uÅ¼ony
-	c) SIGKILL - program koÅ„czy pracÄ™
+3) Wszystkie watki maja niestandardowa obsluge sygnalu:
+	a) SIGUSR1 - sygnal‚ prawidlowo obsluzony
+	b) SIGTERM - sygnal‚ prawidlowo obsluzony
+	c) SIGKILL - wyjscie z programu
 	d) SIGSTOP - program zostaje zastopowany
 	
-4) WÄ…tek z zamaskowanym sygnaÅ‚em
-	a) SIGUSR1 - nic siÄ™ nie dzieje
-	b) SIGTERM - nic siÄ™ nie dzieje
-	c) SIGKILL - program koÅ„czy pracÄ™
+4) Sygnal wysylany do watku z zamaskowanym sygnalem
+	a) SIGUSR1 - brak reakcji
+	b) SIGTERM - brak reakcji
+	c) SIGKILL - wyjscie z programu
 	d) SIGSTOP - program zostaje zastopowany
 	
-5) WÄ…tek ma obsÅ‚ugÄ™ sygnaÅ‚u
-	a) SIGUSR1 - sygnaÅ‚ prawidÅ‚owo obsÅ‚uÅ¼ony
-	b) SIGTERM - sygnaÅ‚ prawidÅ‚owo obsÅ‚uÅ¼ony
-	c) SIGKILL - program koÅ„czy pracÄ™
+5) Sygnal wysylany do watku z obsluzonym sygnalem
+	a) SIGUSR1 - sygnal‚ prawidlowo obsluzony
+	b) SIGTERM - sygnal‚ prawidlowo obsluzony
+	c) SIGKILL - wyjscie z programu
 	d) SIGSTOP - program zostaje zastopowany

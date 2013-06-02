@@ -6,79 +6,80 @@
 #include <signal.h>
 #include <unistd.h>
 
+#ifndef SIGNAL
 #define SIGNAL SIGUSR1
-#define ERROR { int error_code = errno; \
-				perror("blad "); \
-				exit(error_code); }
+#endif
 
-void handle(int signo)
-{
-	printf("PID=%d TID=%d\n", getpid(), (unsigned int)pthread_self());
+void sig_handler(int signo) {
+	printf("PID = %d TID = %d\n", getpid(), (int)pthread_self());
 }
 
-void * fun(void * args)
-{
-	#ifdef VER_3
-	signal(SIGNAL, handle);
-	#endif
-	#ifdef VER_4
+void * thread_run(void * args) {
+	#ifdef V_3
+	signal(SIGNAL, sig_handler);
+	#elif V_4
 	sigset_t set;
 	sigemptyset(&set);
 	sigaddset(&set, SIGNAL);
-	if(sigprocmask(SIG_SETMASK, &set, NULL) < 0)
-		ERROR;
+	if(sigprocmask(SIG_SETMASK, &set, NULL) < 0) {
+		printf("Masking SIG %d in toy thread failed.\n", SIGNAL);
+        exit(1);
+    }
 	#endif
-	printf("Thread running\t\t[ OK ]\n");
+	printf("SIG %d masked for the toy thread.\n", SIGNAL);
 
-	while(1)
-	{
+	while (1) {
 	}
-
-	printf("Tread exiting . . .\n");
 
 	return NULL;
 }
 
-int main(int argc, char * argv[])
-{
-	#ifdef VER_2
+int main(int argc, char ** argv) {
+	#ifdef V_2
 	sigset_t set;
 	sigemptyset(&set);
 	sigaddset(&set, SIGNAL);
-	if(sigprocmask(SIG_SETMASK, &set, NULL) < 0)
-		ERROR;
+	if(sigprocmask(SIG_SETMASK, &set, NULL) < 0) {
+        printf("Masking SIG %d in main thread failed.\n", SIGNAL);
+        exit(1);
+	}
+	printf("SIG %d masked for the main thread.\n", SIGNAL);
 	#endif
 
-	printf("Creating thread");
 	pthread_t thread;
-	if(pthread_create(&thread, NULL, &fun, NULL) != 0)
-		ERROR;
-	printf("\t\t[ OK ]\n");
+	if(pthread_create(&thread, NULL, &thread_run, (void*) NULL) < 0) {
+	    printf("Creating toy thread has failed.\n");
+	    exit(2);
+	}
+	printf("Toy thread created.\n");
 
-	//!REPAIR
 	sleep(1);
 
-	#ifdef VER_5
-	printf("Sending signal to thread");
-	if(pthread_kill(thread, SIGNAL) != 0)
-		ERROR;
-	printf("\t\t[ OK ]\n");
-	#elif VER_4
-	printf("Sending signal to thread");
-	if(pthread_kill(thread, SIGNAL) != 0)
-		ERROR;
-	printf("\t\t[ OK ]\n");
+	#if defined V_4 || V_5
+	if(pthread_kill(thread, SIGNAL) < 0) {
+	    printf("Failure sending signal %d to the toy thread\n", SIGNAL);
+	    exit(3);
+	}
+	printf("Sending signal to the toy thread thread.\n");
+	//#elif V_4
+	//if(pthread_kill(thread, SIGNAL) < 0) {
+	//    printf("Failure sending signal %d to the toy thread\n", SIGNAL);
+	//    exit(4);
+	//}
+	printf("Sending signal to the toy thread thread.\n");
 	#else
-	printf("Sending signal to myself");
-	if(raise(SIGNAL) < 0)
-		ERROR;
-	printf("\t\t[ OK ]\n");
+	if(raise(SIGNAL) < 0) {
+	    printf("Failure sending signal %d to the main thread\n", SIGNAL);
+	    exit(5);
+	}
+    printf("Sending signal to the main thread.\n");
 	#endif
 
-	printf("Waiting for thread");
-	if(pthread_join(thread, NULL) < 0)
-		ERROR;
-	printf("\t\t[ OK ]\n");
+	if(pthread_join(thread, NULL) < 0) {
+        printf("Failure joining toy thread.\n");
+        exit(6);
+    }
+    printf("Success.\n");
 
-	return EXIT_SUCCESS;
+	return 0;
 }

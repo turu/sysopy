@@ -1,5 +1,5 @@
 1) Zaden watek nie ma zamaskowanego sygnalu:
-	a) SIGUSR1 - wyjscie z programu
+	a) SIGUSR1 - wyjscie z programu 
 	b) SIGTERM - wyjscie z programu
 	c) SIGKILL - wyjscie z programu
 	d) SIGSTOP - program zostaje zastopowany
@@ -11,8 +11,8 @@
 	d) SIGSTOP - program zostaje zastopowany
 	
 3) Wszystkie watki maja niestandardowa obsluge sygnalu:
-	a) SIGUSR1 - sygnal‚ prawidlowo obsluzony
-	b) SIGTERM - sygnal‚ prawidlowo obsluzony
+	a) SIGUSR1 - sygnal prawidlowo obsluzony
+	b) SIGTERM - sygnal prawidlowo obsluzony
 	c) SIGKILL - wyjscie z programu
 	d) SIGSTOP - program zostaje zastopowany
 	
@@ -23,7 +23,7 @@
 	d) SIGSTOP - program zostaje zastopowany
 	
 5) Sygnal wysylany do watku z obsluzonym sygnalem
-	a) SIGUSR1 - sygnal‚ prawidlowo obsluzony
-	b) SIGTERM - sygnal‚ prawidlowo obsluzony
+	a) SIGUSR1 - sygnal prawidlowo obsluzony
+	b) SIGTERM - sygnal prawidlowo obsluzony
 	c) SIGKILL - wyjscie z programu
 	d) SIGSTOP - program zostaje zastopowany

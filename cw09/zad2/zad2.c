@@ -25,8 +25,8 @@ void * thread_run(void * args) {
 		printf("Masking SIG %d in toy thread failed.\n", SIGNAL);
         exit(1);
     }
+    printf("SIG %d masked for the toy thread.\n", SIGNAL);
 	#endif
-	printf("SIG %d masked for the toy thread.\n", SIGNAL);
 
 	while (1) {
 	}
@@ -61,13 +61,10 @@ int main(int argc, char ** argv) {
 	    exit(3);
 	}
 	printf("Sending signal to the toy thread thread.\n");
-	//#elif V_4
-	//if(pthread_kill(thread, SIGNAL) < 0) {
-	//    printf("Failure sending signal %d to the toy thread\n", SIGNAL);
-	//    exit(4);
-	//}
-	printf("Sending signal to the toy thread thread.\n");
 	#else
+	#ifdef V_3
+	signal(SIGNAL, sig_handler);
+	#endif
 	if(raise(SIGNAL) < 0) {
 	    printf("Failure sending signal %d to the main thread\n", SIGNAL);
 	    exit(5);

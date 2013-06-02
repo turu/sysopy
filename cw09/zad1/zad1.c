@@ -63,14 +63,19 @@ void * thread_run(void * args) {
 	while (1) {
 	    pthread_mutex_lock(&mutex);
 	    if (file_ptr >= filesize) {
+	        pthread_mutex_unlock(&mutex);
 	        break;
 	    }
 	    int status;
 		if ((status = read(fd, buf, buf_size)) < 0) {
 		    printf("Failure reading chunk of file at position %ld.\n", file_ptr);
+		    pthread_mutex_unlock(&mutex);
 		    exit(19);
 		}
-		if (status == 0) break;
+		if (status == 0) {
+            pthread_mutex_unlock(&mutex);
+            break;
+        }
 		buf_size = status;
 		file_ptr += buf_size;
 		pthread_mutex_unlock(&mutex);
@@ -97,7 +102,7 @@ void * thread_run(void * args) {
 	}
 
 	if (found) {
-		printf("TID = %d\t file_ptr=%d\n", (int)pthread_self(), found - buf_size);
+		printf("TID = %d\t, pattern found: file_ptr = %d\n", (int)pthread_self(), found - buf_size);
 
         #ifndef V_C
 		for (i = 0; i < thread_count; i++) {
@@ -185,7 +190,7 @@ int main(int argc, char ** argv) {
 		printf("Created thread id %d.\n", (int) threads[i]);
 	}
 
-	for(i = 0 ; i < thread_count ; i++)
+	for(i = 0; i < thread_count; i++)
 		if(pthread_join(threads[i], NULL) < 0) {
 			printf("Could not join thread no %d to the main one.\n", i);
 		    exit(5);

@@ -20,12 +20,8 @@
 
 #include "commons.h"
 
-struct sockaddr * srv_name;
-struct sockaddr_in srv_name_in;
-struct sockaddr_un srv_name_un;
-struct sockaddr_un cli_name_un;
 int id;
-Listener listener;
+int sock;
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_t requestThread;
 int logged_out = 1;
@@ -35,9 +31,10 @@ void printHelp() {
 }
 
 int getInternetSocket(char * address, int port) {
+    struct sockaddr_in srv_name_in;
 	int sock;
 
-	if ((sock = socket(PF_INET, SOCK_DGRAM, 0)) == -1) {
+	if ((sock = socket(PF_INET, SOCK_STREAM, 0)) == -1) {
         printf("Could not create socket!\n");
         exit(1);
     }
@@ -50,54 +47,42 @@ int getInternetSocket(char * address, int port) {
         exit(1);
     }
 
-    srv_name = (struct sockaddr*)&srv_name_in;
+    if (connect(sock, (struct sockaddr*)&srv_name_in, sizeof(srv_name_in)) < 0) {
+        printf("Connection failure.\n");
+        exit(1);
+    }
 
-    printf("Internet socket created.\n");
+    printf("Internet socket created, connection established.\n");
     return sock;
 }
 
 int getUnixSocket(char * file) {
-    char path[256];
+    struct sockaddr_un srv_name_un;
 	int sock;
-	int pid = getpid();
-	sprintf(path, "/tmp/c%i", pid);
 
-	unlink(path);
-
-	if ((sock = socket(PF_UNIX, SOCK_DGRAM, 0)) == -1) {
+	if ((sock = socket(PF_UNIX, SOCK_STREAM, 0)) == -1) {
         printf("Could not create socket!\n");
-        exit(1);
-    }
-
-    cli_name_un.sun_family = AF_UNIX;
-    strncpy(cli_name_un.sun_path, path, strlen(path));
-
-    if(bind(sock, (struct sockaddr*)&cli_name_un, SUN_LEN(&cli_name_un)) < 0) {
-    	printf("Connection failure.\n");
         exit(1);
     }
 
     srv_name_un.sun_family = AF_UNIX;
     strcpy(srv_name_un.sun_path, file);
-    srv_name = (struct sockaddr*)&srv_name_un;
 
-    printf("Unix socket created.\n");
+    if (connect(sock, (struct sockaddr*)&srv_name_un, sizeof(srv_name_un)) < 0) {
+        printf("Connection failure.\n");
+        exit(1);
+    }
+
+    printf("Unix socket created, connection established.\n");
     return sock;
 }
 
-void getUsers(int sock, int mode) {
+void getUsers() {
 	Request req;
 	req.type = REQ_GETUSERS;
 	req.id = id;
 
-	socklen_t size;
-	if (mode) {
-		size = (socklen_t) sizeof(srv_name_in);
-	} else {
-		size = (socklen_t) SUN_LEN(&srv_name_un);
-	}
-
-	if (sendto(sock, &req, sizeof(Request), 0, srv_name, size) < 0) {
+	if (send(sock, &req, sizeof(Request), 0) < 0) {
 		printf("Could not send users request.\n");
 		close(sock);
 		exit(1);
@@ -109,7 +94,7 @@ void getUsers(int sock, int mode) {
 	}
 
 	UserInfoHeader uih;
-	if (recvfrom(sock, &uih, sizeof(UserInfoHeader), 0, srv_name, &size) < 0) {
+	if (recv(sock, &uih, sizeof(UserInfoHeader), 0) < 0) {
 		printf("Could not receive user info header!");
 	    exit(1);
 	}
@@ -119,7 +104,7 @@ void getUsers(int sock, int mode) {
 	User user;
 	int i;
 	for (i = 0; i < uih.user_count; i++) {
-		if (recvfrom(sock, &user, sizeof(User), 0, srv_name, &size) < 0) {
+		if (recv(sock, &user, sizeof(User), 0) < 0) {
 			printf("Could not receive info for %d'th number!\n", i);
 			exit(1);
 		}
@@ -135,58 +120,37 @@ void getUsers(int sock, int mode) {
 	}
 }
 
-void login(int sock, int mode) {
+void login() {
 	Request req;
 	gethostname(req.name, sizeof(req.name));
 	sprintf(req.name, "%s@%s", req.name,  gethostent()->h_name);
 	req.id = -1;
 	req.type = REQ_LOGIN;
-	req.mode = mode;
 
-	if (mode) {
-		req.size = sizeof(cli_name_un);
-	} else {
-		req.size = SUN_LEN(&cli_name_un);
-	}
-
-	socklen_t size;
-	if (mode) {
-		size = (socklen_t) sizeof(srv_name_in);
-	} else {
-		size = (socklen_t) SUN_LEN(&srv_name_un);
-	}
-
-	if (sendto(sock, &req, sizeof(Request), 0, srv_name, size) < 0) {
-		printf("Could not login to %s server addr: %u\n", req.name, (unsigned int)srv_name_in.sin_addr.s_addr);
+	if (send(sock, &req, sizeof(Request), 0) < 0) {
+		printf("Could not login to %s server addr: %d\n", req.name, sock);
 		close(sock);
 		exit(1);
 	}
 
-	if (recvfrom(sock, &id, sizeof(int), 0, srv_name, &size) < 0) {
+	if (recv(sock, &id, sizeof(int), 0) < 0) {
 		printf("Could not receive id from server!\n");
 		exit(1);
 	}
 
     printf("Login successfull. Logged in as id %d\n", id);
     logged_out = 0;
-	getUsers(sock, mode);
+	getUsers();
 }
 
-void logout(int sock, int mode) {
+void logout() {
 	Request req;
 	gethostname(req.name, sizeof(req.name));
-	sprintf(req.name, "%s : %s", req.name,  gethostent()->h_name);
+	sprintf(req.name, "%s@%s", req.name,  gethostent()->h_name);
 	req.id = id;
 	req.type = REQ_LOGOUT;
 
-	socklen_t size;
-	if (mode) {
-		size = (socklen_t) sizeof(srv_name_in);
-	} else {
-		size = (socklen_t) SUN_LEN(&srv_name_un);
-	}
-
-	if (sendto(sock, &req, sizeof(Request), 0, srv_name, size) < 0) {
+	if (send(sock, &req, sizeof(Request), 0) < 0) {
 		printf("Failure sending logout request!\n");
 		close(sock);
 		exit(1);
@@ -195,7 +159,7 @@ void logout(int sock, int mode) {
 	printf("User logged out.\n");
 }
 
-void getRemoteCommandResult(int sock, int mode) {
+void getRemoteCommandResult() {
     int targetId;
     printf("Type target user id: ");
     scanf("%d", &targetId);
@@ -209,26 +173,19 @@ void getRemoteCommandResult(int sock, int mode) {
     gets(req.name); // awful
     gets(req.name); // hack
 
-    socklen_t size;
-	if (mode) {
-		size = (socklen_t) sizeof(srv_name_in);
-	} else {
-		size = (socklen_t) SUN_LEN(&srv_name_un);
-	}
-
 	if (pthread_mutex_lock(&mutex) != 0) {
 		printf("Could not set lock!");
 		exit(1);
 	}
 
-	if (sendto(sock, &req, sizeof(Request), 0, srv_name, size) < 0) {
+	if (send(sock, &req, sizeof(Request), 0) < 0) {
 		printf("Could not deliver command request!\n");
 		close(sock);
 		exit(1);
 	}
 
 	CommandRequest cr;
-	if (recvfrom(sock, &cr, sizeof(CommandRequest), 0, srv_name, &size) < 0) {
+	if (recv(sock, &cr, sizeof(CommandRequest), 0) < 0) {
 		printf("Could not receive server response!\n");
 	    exit(1);
 	}
@@ -245,7 +202,7 @@ void getRemoteCommandResult(int sock, int mode) {
 	}
 }
 
-void clientRun(int sock, int mode) {
+void clientRun() {
 	int c;
 
 	while (1) {
@@ -254,13 +211,13 @@ void clientRun(int sock, int mode) {
 		scanf("%i", &c);
 		switch (c) {
 			case 1:
-				getUsers(sock, mode);
+				getUsers();
 				break;
 			case 2:
-				getRemoteCommandResult(sock, mode);
+				getRemoteCommandResult();
 				break;
 			case 3:
-				logout(sock, mode);
+				logout();
 				return;
 		}
 	}
@@ -272,16 +229,9 @@ void executeRemoteCommand(CommandRequest cr) {
     req.id = id;
     req.value = cr.callerId;
 
-    socklen_t size;
-	if (listener.mode) {
-		size = (socklen_t) sizeof(srv_name_in);
-	} else {
-		size = (socklen_t) SUN_LEN(&srv_name_un);
-	}
-
-	if (sendto(listener.socket, &req, sizeof(Request), 0, srv_name, size) < 0) {
+	if (send(sock, &req, sizeof(Request), 0) < 0) {
 		printf("Could not initiate execute response\n");
-		close(listener.socket);
+		close(sock);
 		exit(1);
 	}
 
@@ -295,9 +245,9 @@ void executeRemoteCommand(CommandRequest cr) {
         pclose(f);
 	}
 
-	if (sendto(listener.socket, &cr, sizeof(CommandRequest), 0, srv_name, size) < 0) {
+	if (send(sock, &cr, sizeof(CommandRequest), 0) < 0) {
 		printf("Could not transfer command response.\n");
-		close(listener.socket);
+		close(sock);
 		exit(1);
 	}
 
@@ -305,13 +255,6 @@ void executeRemoteCommand(CommandRequest cr) {
 }
 
 void * requestListenerRun(void * args) {
-	socklen_t size;
-	if (listener.mode) {
-		size = (socklen_t) sizeof(srv_name_in);
-	} else {
- 		size = (socklen_t) SUN_LEN(&srv_name_un);
-	}
-
     CommandRequest cr;
 
 	while (1) {
@@ -320,7 +263,7 @@ void * requestListenerRun(void * args) {
 			exit(1);
 		}
 
-		if (recvfrom(listener.socket, &cr, sizeof(CommandRequest), MSG_DONTWAIT, srv_name, &size) < 0) {
+		if (recv(sock, &cr, sizeof(CommandRequest), MSG_DONTWAIT) < 0) {
 			if(errno != EAGAIN && errno != EWOULDBLOCK && logged_out != 1) {
 				printf("Could not receive command request!\n");
 				exit(1);
@@ -336,10 +279,7 @@ void * requestListenerRun(void * args) {
 	}
 }
 
-void serveRequests(sock, mode) {
-	listener.mode = mode;
-	listener.socket = sock;
-
+void serveRequests() {
 	if (pthread_create(&requestThread, NULL, requestListenerRun, NULL) != 0) {
 		printf("Could not create requestThread for serving requests.\n");
 		exit(1);
@@ -352,7 +292,7 @@ void serveRequests(sock, mode) {
 }
 
 void closeSession(int a) {
-	logout(listener.socket, listener.mode);
+	logout();
 	exit(1);
 }
 
@@ -404,10 +344,10 @@ int main(int argc, char ** argv) {
         sock = getUnixSocket(file);
     }
 
-	login(sock, mode);
+	login();
 
-	serveRequests(sock, mode);
-	clientRun(sock, mode);
+	serveRequests();
+	clientRun();
 
 	close(sock);
 

@@ -26,8 +26,6 @@ typedef struct User {
 } User;
 
 typedef struct Request {
-	int mode;
-	size_t size;
 	int type;
 	int id;
 	int value;

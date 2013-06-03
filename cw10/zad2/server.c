@@ -132,7 +132,7 @@ void serveRequest(int sock) {
 
 	if(recv(sock, &req, sizeof(Request), 0) < 0) {
 		//printf("Could not receive message!\n"); <- no pending messages for the server
-		//printf(".");
+		printf(".");
 		return;
 	}
 
@@ -216,12 +216,12 @@ void * clientThreadRun(void * args) {
 
 void * serverRun(void * args) {
     int handShakeSocket = *((int*)args);
-    int sock;
 	struct sockaddr cli_name;
 	size_t size = sizeof(cli_name);
 
 	while (1) {
-		if ((sock = accept(handShakeSocket, &cli_name, (socklen_t*)&size)) < 0) {
+	    int sock;
+		if ((sock = accept(handShakeSocket, &cli_name, &size)) == -1) {
             printf("Could not accept new client connection!\n");
             pthread_exit(NULL);
 		}
@@ -300,6 +300,7 @@ int main(int argc, char ** argv) {
 	internetSocket = getInternetSocket(port);
 
 	pthread_t unixDispatchThread;
+	pthread_t internetDispatchThread;
 
 	if (pthread_create(&unixDispatchThread, NULL, &serverRun, &unixSocket) != 0) {
 		printf("Could not UNIX dispatch thread!\n");
@@ -311,8 +312,18 @@ int main(int argc, char ** argv) {
 		exit(1);
 	}
 
+	if (pthread_create(&internetDispatchThread, NULL, &serverRun, &internetSocket) != 0) {
+		printf("Could not internet dispatch thread!\n");
+		exit(1);
+	}
+
+	if (pthread_detach(internetDispatchThread) != 0) {
+		printf("Could not set internetDispatchThread into detached state!\n");
+		exit(1);
+	}
+
 	printf("Server initialized.\n");
-	serverRun(&internetSocket);
+	while(1);
 
 	return 0;
 }

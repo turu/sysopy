@@ -1,32 +1,16 @@
 CC=gcc
 CFLAGS = -Wall -lpthread
 
-SRC1 = serwer.c
-SRC2 = klient.c
-HEAD = structures.h
+all : server client
 
-.PHONY : all
-all : serwer klient
-
-serwer : serwer.o
-	$(CC) $(CFLAGS) -o $@ $^
-
-serwer.o : $(SRC1) $(HEAD)
-	$(CC) $(CFLAGS) -c -o $@ $(SRC1)
+server : server.o
+	$(CC) $^ $(CFLAGS) -o $@.out
 	
-klient : klient.o
-	$(CC) $(CFLAGS) -o $@ $^
+client : client.o
+	$(CC) $^ $(CFLAGS) -o $@.out
 
-klient.o : $(SRC2) $(HEAD)
-	$(CC) $(CFLAGS) -c -g -o $@ $(SRC2)
-
-.PHONY : clean
 clean :
-	rm -f *.o
-	
-.PHONY : uninstall
-uninstall :
-	rm -f serwer klient
-
+	rm -rvf *.o
+	rm -rvf *.out
 
 

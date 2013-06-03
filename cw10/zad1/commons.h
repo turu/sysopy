@@ -2,20 +2,18 @@
 #define _COMMONS_H_
 
 #define DEFAULT_ADDRESS "127.0.0.1"
-#define DEFAULT_FILE "/tmp/server"
-#define HOST_NAME_MAX 60
-#define DEFAULT_PORT (uint16_t)5432
-#define DEFAULT_MODE 1
-#define REQ_LOGIN 0
-#define REQ_GETUSERS 1
-#define REQ_USERINFO 2
-#define REQ_LOGOUT 3
-#define REQ_RETUSERINFO 4
-#define REQ_EXECUTE 5
-#define REQ_RESP_EXECUTE 6
-#define MAXCLIENTS 100
+#define DEFAULT_FILE "server"
+#define HOST_NAME_MAX 120
 #define MODE_UNIX 0
 #define MODE_INET 1
+#define DEFAULT_PORT (uint16_t)5432
+#define DEFAULT_MODE MODE_UNIX
+#define REQ_LOGIN 0
+#define REQ_GETUSERS 1
+#define REQ_LOGOUT 2
+#define REQ_EXECUTE 3
+#define REQ_RESP_EXECUTE 4
+#define MAXCLIENTS 100
 
 typedef struct UserInfoHeader {
 	int user_count;
@@ -42,14 +40,6 @@ typedef struct Listener {
 	int socket;
 	int mode;
 } Listener;
-
-typedef struct Info {
-	int proc;
-	int users;
-	int load;
-	int freemem;
-	int totmem;
-} Info;
 
 typedef struct CommandRequest {
     int callerId;

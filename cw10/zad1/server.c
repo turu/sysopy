@@ -25,7 +25,7 @@ User * users[MAXCLIENTS];
 char * _socketFile;
 
 void printHelp() {
-    printf("Arguments:\n-f <path> path to the unix socket's file\n-p <number> port used by the internet socket.\n");
+    printf("Arguments:\n-f <path> path to the unix socket's file\n-p <number> port used by the internet socket.\n-h print help\n");
 }
 
 int getInternetSocket(int port) {
@@ -108,11 +108,13 @@ void serveRequest(int sock) {
 	socklen_t siz = (socklen_t) sizeof(client_name);
 	if(recvfrom(sock, &req, sizeof(Request), MSG_DONTWAIT, &client_name, &siz) < 0) {
 		//printf("Could not receive message!\n"); <- no pending messages for the server
+		printf(".");
 		return;
 	}
 
-	switch(req.type) {
+	switch (req.type) {
 		case REQ_LOGIN:
+            printf("Received login request.\n");
 			users[userCounter] = (User*) malloc(sizeof(User));
 			users[userCounter]->id = userCounter;
 			users[userCounter]->size = req.size;
@@ -128,6 +130,7 @@ void serveRequest(int sock) {
 			userCounter = (userCounter+1) % MAXCLIENTS;
 			break;
 		case REQ_LOGOUT:
+            printf("Received logout request from user %d.\n", req.id);
             if (users[req.id] == NULL) {
                 printf("User not connected");
             }
@@ -136,9 +139,11 @@ void serveRequest(int sock) {
 			users[req.id] = NULL;
 			break;
 		case REQ_GETUSERS:
+            printf("Received user list request.\n");
 			sendUsers(sock, &client_name);
 			break;
         case REQ_EXECUTE:
+            printf("Received remote command request from user %d, target %d.\n", req.id, req.value);
             if (users[req.value]->mode == MODE_UNIX) {
                 sockId = unixSocket;
             } else {
@@ -163,6 +168,7 @@ void serveRequest(int sock) {
             if(recvfrom(sock, &cr, sizeof(CommandRequest), 0, &client_name, (socklen_t*)&users[req.id]->size) < 0) {
 				printf("Could not receive data.\n");
 			}
+			printf("Received remote command request response. Caller id %d, target id %d.\n", cr.callerId, cr.targetId);
 
             if (users[req.value]->mode == MODE_UNIX) {
                 sockId = unixSocket;
@@ -207,16 +213,12 @@ void serverDestroy(int arg) {
 int main(int argc, char ** argv) {
 	int port = DEFAULT_PORT;
 	_socketFile = malloc(sizeof(char) * HOST_NAME_MAX);
+	_socketFile = strcpy(_socketFile, DEFAULT_FILE);
 
 	signal(SIGINT, serverDestroy);
 
-	if(argc < 2) {
-	    printHelp();
-		exit(1);
-	}
-
 	int c;
-	while((c = getopt(argc, argv, "f:p:")) != -1) {
+	while((c = getopt(argc, argv, "f:p:h")) != -1) {
 		switch(c) {
 			case 'p':
 				port = atoi(optarg);
@@ -224,6 +226,9 @@ int main(int argc, char ** argv) {
 			case 'f':
 				strcpy(_socketFile, optarg);
 				break;
+            case 'h':
+                printHelp();
+                exit(0);
 			default:
 				printHelp();
 				exit(0);

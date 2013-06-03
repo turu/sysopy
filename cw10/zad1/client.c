@@ -61,7 +61,7 @@ int getUnixSocket(char * file) {
 	int pid = getpid();
 	sprintf(path, "/tmp/c%i", pid);
 
-	unlink(file);
+	unlink(path);
 
 	if ((sock = socket(PF_UNIX, SOCK_DGRAM, 0)) == -1) {
         printf("Could not create socket!\n");
@@ -360,7 +360,7 @@ int main(int argc, char ** argv) {
 
 	signal(SIGINT, closeSession);
 
-	if(argc < 2) {
+	if (argc < 2) {
 		printHelp();
 		exit(1);
 	}
@@ -390,6 +390,8 @@ int main(int argc, char ** argv) {
 				exit(0);
 		}
 	}
+
+	printf("Arguments parsed! %s\n", file);
 
 	if (mode == MODE_INET) {
         sock = getInternetSocket(address, port);

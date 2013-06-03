@@ -51,6 +51,7 @@ int getInternetSocket(char * address, int port) {
 
     srv_name = (struct sockaddr*)&srv_name_in;
 
+    printf("Internet socket created.\n");
     return sock;
 }
 
@@ -79,6 +80,7 @@ int getUnixSocket(char * file) {
     strcpy(srv_name_un.sun_path, file);
     srv_name = (struct sockaddr*)&srv_name_un;
 
+    printf("Unix socket created.\n");
     return sock;
 }
 
@@ -164,6 +166,7 @@ void login(int sock, int mode) {
 		exit(1);
 	}
 
+    printf("Login successfull.\n");
 	getUsers(sock, mode);
 }
 
@@ -186,6 +189,7 @@ void logout(int sock, int mode) {
 		close(sock);
 		exit(1);
 	}
+	printf("User logged out.\n");
 }
 
 void getRemoteCommandResult(int sock, int mode) {
@@ -292,6 +296,7 @@ void executeRemoteCommand(CommandRequest cr) {
 		exit(1);
 	}
 
+    printf("Remote command execution request received from user %d.\nCommand: %s\n", cr.callerId, cr.command_name);
 }
 
 void * requestListenerRun(void * args) {

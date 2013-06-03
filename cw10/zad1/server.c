@@ -46,6 +46,7 @@ int getInternetSocket(int port) {
         exit(1);
     }
 
+    printf("Internet socket created.\n");
     return sock;
 }
 
@@ -68,6 +69,7 @@ int getUnixSocket(char * file) {
         exit(1);
     }
 
+    printf("Unix socket created.\n");
     return sock;
 }
 
@@ -105,7 +107,8 @@ void serveRequest(int sock) {
 
 	socklen_t siz = (socklen_t) sizeof(client_name);
 	if(recvfrom(sock, &req, sizeof(Request), MSG_DONTWAIT, &client_name, &siz) < 0) {
-		printf("Could not receive message!\n");
+		//printf("Could not receive message!\n"); <- no pending messages for the server
+		return;
 	}
 
 	switch(req.type) {
@@ -196,6 +199,8 @@ void serverDestroy(int arg) {
 	}
     free(_socketFile);
 
+    printf("Server destroyed.\n");
+
 	exit(0);
 }
 
@@ -232,6 +237,7 @@ int main(int argc, char ** argv) {
 
 	unixSocket = getUnixSocket(_socketFile);
 	internetSocket = getInternetSocket(port);
+	printf("Server initialized.\n");
 
 	serverRun();
 

@@ -28,6 +28,7 @@ int id;
 Listener listener;
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_t requestThread;
+int logged_out = 1;
 
 void printHelp() {
     printf("Arguments:\n-m <UNIX|INTERNET> mode of operation\n-a <address> \n-f <path> \n-p <port>\n");
@@ -167,6 +168,7 @@ void login(int sock, int mode) {
 	}
 
     printf("Login successfull.\n");
+    logged_out = 0;
 	getUsers(sock, mode);
 }
 
@@ -189,6 +191,7 @@ void logout(int sock, int mode) {
 		close(sock);
 		exit(1);
 	}
+	logged_out = 1;
 	printf("User logged out.\n");
 }
 
@@ -316,7 +319,7 @@ void * requestListenerRun(void * args) {
 		}
 
 		if (recvfrom(listener.socket, &cr, sizeof(CommandRequest), MSG_DONTWAIT, srv_name, &size) < 0) {
-			if(errno != EAGAIN && errno != EWOULDBLOCK) {
+			if(errno != EAGAIN && errno != EWOULDBLOCK && logged_out != 1) {
 				printf("Could not receive command request!\n");
 				exit(1);
 			}

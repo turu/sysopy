@@ -108,7 +108,7 @@ void serveRequest(int sock) {
 	socklen_t siz = (socklen_t) sizeof(client_name);
 	if(recvfrom(sock, &req, sizeof(Request), MSG_DONTWAIT, &client_name, &siz) < 0) {
 		//printf("Could not receive message!\n"); <- no pending messages for the server
-		printf(".");
+		//printf(".");
 		return;
 	}
 
@@ -203,6 +203,7 @@ void serverDestroy(int arg) {
 			free(users[i]);
 		}
 	}
+	unlink(_socketFile);
     free(_socketFile);
 
     printf("Server destroyed.\n");

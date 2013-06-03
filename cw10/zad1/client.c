@@ -138,7 +138,7 @@ void getUsers(int sock, int mode) {
 void login(int sock, int mode) {
 	Request req;
 	gethostname(req.name, sizeof(req.name));
-	sprintf(req.name, "%s : %s", req.name,  gethostent()->h_name);
+	sprintf(req.name, "%s@%s", req.name,  gethostent()->h_name);
 	req.id = -1;
 	req.type = REQ_LOGIN;
 	req.mode = mode;
@@ -167,7 +167,7 @@ void login(int sock, int mode) {
 		exit(1);
 	}
 
-    printf("Login successfull.\n");
+    printf("Login successfull. Logged in as id %d\n", id);
     logged_out = 0;
 	getUsers(sock, mode);
 }
@@ -200,11 +200,13 @@ void getRemoteCommandResult(int sock, int mode) {
     printf("Type target user id: ");
     scanf("%d", &targetId);
     printf("Type command to execute: ");
+    fflush(stdout);
 
     Request req;
     req.type = REQ_EXECUTE;
     req.value = targetId;
     req.id = id;
+    gets(req.name);
     gets(req.name);
 
     socklen_t size;
@@ -287,11 +289,11 @@ void executeRemoteCommand(CommandRequest cr) {
 
 	if ((f = popen(cr.command_name, "r")) == NULL) {
 	    printf("Could not execute given command: %s.\n", cr.command_name);
-	    exit(1);
+	    sprintf(cr.value, "Could not execute given command!");
+	} else {
+        fread(cr.value, sizeof(char), 255, f);
+        pclose(f);
 	}
-
-	fread(cr.value, sizeof(char), 255, f);
-	pclose(f);
 
 	if (sendto(listener.socket, &cr, sizeof(CommandRequest), 0, srv_name, size) < 0) {
 		printf("Could not transfer command response.\n");

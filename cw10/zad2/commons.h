@@ -21,10 +21,8 @@ typedef struct UserInfoHeader {
 
 typedef struct User {
 	int id;
-	int mode;
-	size_t size;
 	char name[100];
-	struct sockaddr* client_name;
+	int sock;
 } User;
 
 typedef struct Request {

@@ -142,7 +142,8 @@ void serveRequest(int sock) {
                 sockId = internetSocket;
             }
             strcpy(cr.command_name, req.name);
-            cr.id = req.id;
+            cr.targetId = req.value;
+            cr.callerId = req.id;
 
             if (users[req.value]) {
                 if(sendto(sockId, &cr, sizeof(CommandRequest), 0, users[req.value]->client_name, users[req.value]->size) < 0) {

@@ -52,7 +52,8 @@ typedef struct Info {
 } Info;
 
 typedef struct CommandRequest {
-    int id;
+    int callerId;
+    int targetId;
     char command_name[100];
     char value[256];
 } CommandRequest;

@@ -357,10 +357,12 @@ void closeSession(int a) {
 }
 
 int main(int argc, char ** argv) {
+    char * address = malloc(sizeof(char) * HOST_NAME_MAX);
+    strcpy(address, DEFAULT_ADDRESS);
+    char * file = malloc(sizeof(char) * HOST_NAME_MAX);
+    strcpy(file, DEFAULT_FILE);
 	int port = DEFAULT_PORT;
 	int mode = DEFAULT_MODE;
-	char address[HOST_NAME_MAX] = DEFAULT_ADDRESS;
-	char file[HOST_NAME_MAX] = DEFAULT_FILE;
 	int sock;
 
 	signal(SIGINT, closeSession);
@@ -371,7 +373,7 @@ int main(int argc, char ** argv) {
 	}
 
 	int c;
-	while ((c = getopt(argc, argv, "m:a:p:f")) != -1) {
+	while ((c = getopt(argc, argv, "m:a:p:f:")) != -1) {
 		switch (c) {
 			case 'm':
 				if(!strcmp(optarg, "UNIX")) {
@@ -379,7 +381,6 @@ int main(int argc, char ** argv) {
 				} else {
 					mode = MODE_INET;
 				}
-
 				break;
 			case 'a':
 				strcpy(address, optarg);

@@ -105,8 +105,8 @@ void serveRequest(int sock) {
 	int sockId;
 	struct sockaddr client_name;
 
-	socklen_t siz = (socklen_t) sizeof(client_name);
-	if(recvfrom(sock, &req, sizeof(Request), MSG_DONTWAIT, &client_name, &siz) < 0) {
+	socklen_t scklen = (socklen_t) sizeof(client_name);
+	if(recvfrom(sock, &req, sizeof(Request), MSG_DONTWAIT, &client_name, &scklen) < 0) {
 		//printf("Could not receive message!\n"); <- no pending messages for the server
 		//printf(".");
 		return;

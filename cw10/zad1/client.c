@@ -1,22 +1,22 @@
-#include <stdio.h>
+#include <sys/resource.h>
+#include <sys/sysinfo.h>
+#include <netinet/in.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <arpa/inet.h>
+#include <sys/stat.h>
+#include <pthread.h>
+#include <unistd.h>
+#include <syslog.h>
+#include <signal.h>
+#include <sys/un.h>
+#include <getopt.h>
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <fcntl.h>
-#include <unistd.h>
-#include <syslog.h>
-#include <sys/resource.h>
-#include <signal.h>
-#include <netinet/in.h>
-#include <sys/socket.h>
-#include <sys/un.h>
-#include <arpa/inet.h>
-#include <getopt.h>
 #include <netdb.h>
-#include <pthread.h>
-#include <sys/sysinfo.h>
+#include <stdio.h>
 
 #include "commons.h"
 
@@ -175,7 +175,7 @@ void login(int sock, int mode) {
 void logout(int sock, int mode) {
 	Request req;
 	gethostname(req.name, sizeof(req.name));
-	sprintf(req.name, "%s : %s", req.name,  gethostent()->h_name);
+	sprintf(req.name, "%s@%s", req.name,  gethostent()->h_name);
 	req.id = id;
 	req.type = REQ_LOGOUT;
 
